@@ -11,14 +11,16 @@ export default class Middleware {
    *    it will stop propagation through other middleware and request
    *    won't reach the route.
    *
-   * @param {any} context
+   * @param {any} request
+   * @param {any} response
+   * @param {Function} next
    * @return {Promise<any>}
    *
    * @throws any
    *  - Throwing error will stop request propagation through
    *    other middleware and will stop it from reaching the route.
    */
-  async handle(context) {
-    return false;
+  async handle(request, response, next) {
+    next();
   }
 }
