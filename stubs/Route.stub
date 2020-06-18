@@ -56,8 +56,6 @@ export default class {ROUTE_NAME} extends Route {
    * @return {Promise<void|object|string>}
    */
   async handle(request, response) {
-    // response.status(200).send({ hello: "world" });
-    // OR:
-    return { hello: "world" };
+    response.status(200).send({ hello: "world" });
   }
 }
