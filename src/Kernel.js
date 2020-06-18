@@ -64,11 +64,7 @@ export default class Kernel {
   async config() {
     // Load all the files from config directory, ignore the environment directory,
     // we will take care of that one later.
-    const files = await this.readRecursive(
-      `${Felony.appRootPath}/config/`,
-      [".js"],
-      ["environments"],
-    );
+    const files = await this.readRecursive(`${Felony.appRootPath}/config/`, [".js"], ["environments"]);
 
     // Taking in consideration environment directory here, we will scan the current env
     // directory and attach files from it at the end so they can override any global configurations.
@@ -76,9 +72,9 @@ export default class Kernel {
       const path = `${Felony.appRootPath}/config/environments/${Felony.environment}/`;
 
       try {
-        const stat = await Deno.stat(path);
+        const stat = await fs.stat(path);
 
-        if (stat.isDirectory) {
+        if (stat.isDirectory()) {
           const envFiles = await this.readRecursive(path, ".js");
 
           for (const file of envFiles) {
@@ -90,7 +86,7 @@ export default class Kernel {
       }
     }
 
-    let config = {};
+    let config = Felony.config;
 
     for (const file of files) {
       const name = file.split("/")[file.split("/").length - 1].split(".")[0];
@@ -106,7 +102,7 @@ export default class Kernel {
       }
 
       if (data.default && typeof data.default === "object") {
-        config[name] = data.default;
+        config[name] = { ...(config[name] || {}), ...data.default };
       }
     }
 

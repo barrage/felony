@@ -10,14 +10,14 @@ import FelonyJobFinished from "../support/events/FelonyJobFinished.js";
  */
 export default class Job {
   /**
-   * Path that will be attached to the job as a static instance and jobs will be searched on worker by this key.
+   * Path that will be attached to the job as a static instance and jobs will be searched on worker by this key. (filled in automatically)
    *
    * @type string
    */
   static __path = "";
 
   /**
-   * Once the job is dispatched we will attach the path we got on it so it's not static.
+   * Once the job is dispatched we will attach the path we got on it so it's not static. (filled in automatically)
    *
    * @type string
    */
@@ -25,10 +25,8 @@ export default class Job {
 
   /**
    * Number of retries this job has (after the initial try).
-   * If you wish to have a smarter restrict you can create retryStrategy()
+   * If you wish to have a smarter restrict you can do so in retryStrategy()
    * method in your job.
-   *
-   * If you wish for the job to have infinite retries, set this to -1.
    *
    * @type number
    */
@@ -63,7 +61,7 @@ export default class Job {
   failedAt = null;
 
   /**
-   * Date stamp of when the job finished.
+   * Date stamp of when the job finished (if it finishes)
    *
    * @type Date | null
    */
@@ -77,7 +75,7 @@ export default class Job {
   error = null;
 
   /**
-   * Any results that job returns after execution will be available here.
+   * Any results that handle() method returns after execution will be available here.
    *
    * @type any
    */
@@ -88,17 +86,26 @@ export default class Job {
    *
    * @type string | null
    */
-  queueO = null;
+  queueOn = null;
+
+  /**
+   * Payload passed to the job.
+   *
+   * @type {object}
+   */
+  payload = {};
 
   /**
    * Construct the job and give it some payload
    *
    * @param {object} payload
    */
-  constructor(payload = {}) {}
+  constructor(payload = {}) {
+    this.payload = payload;
+  }
 
   /**
-   * Handler class that will run once the job is actually executed.
+   * Handler method that will run once the job is actually executed.
    *
    * @return {Promise<any>}
    */

@@ -1,5 +1,6 @@
 /**
- * Event definition has no defined properties but will have to extend this class.
+ * This is used only to recognize Felony events, you can add whatever properties to your events
+ * you wish.
  *
  * @class
  */

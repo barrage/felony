@@ -9,6 +9,7 @@ import userAgent from "express-useragent";
 import FelonyServerReady from "../../support/events/FelonyServerReady.js";
 import FelonyServerLoaded from "../../support/events/FelonyServerLoaded.js";
 import FelonyServerListening from "../../support/events/FelonyServerListening.js";
+import FelonyServerBeforeRouteCompile from "../../support/events/FelonyServerBeforeRouteCompile.js";
 
 /**
  * Server instance that will load the routes and launch the server.
@@ -110,7 +111,6 @@ export default class Server {
       this.status = "listening";
 
       console.log(`Server listening on port ${Felony.config.server.port}`);
-
       await Felony.event.raise(new FelonyServerListening(this));
     });
   }
@@ -155,7 +155,7 @@ export default class Server {
   async compileCallbacks(route) {
     const callbacks = [];
 
-    console.log(route.path);
+    await Felony.event.raise(new FelonyServerBeforeRouteCompile(route));
 
     for (const middleware of route._middleware) {
       callbacks.push(async (request, response, next) => {

@@ -174,7 +174,17 @@ export class Felony {
      *
      * @type object
      */
-    queue: {},
+    queue: {
+      /**
+       * Queue requires this connection information
+       * for the redis instance.
+       */
+      // connection: {
+      //   host: "localhost",
+      //   port: 6379,
+      //   db: 0,
+      // }
+    },
   };
 
   /**

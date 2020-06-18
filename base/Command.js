@@ -5,7 +5,7 @@
  */
 export default class Command {
   /**
-   * Path to the command that will be attached while loading.
+   * Path to the command that will be attached while loading (this is automatically filled in)
    *
    * @type string
    */
@@ -33,7 +33,7 @@ export default class Command {
   static usage = "";
 
   /**
-   * Constructor of the command will accept only one parameter which will be payload.
+   * Constructor of the command
    *
    * @param {any} payload
    * @param {boolean} cli Defines if the command has been called from CLI or application
@@ -44,7 +44,7 @@ export default class Command {
   }
 
   /**
-   * Handler method of the command that will run the action.
+   * Method that will be run once you call the command
    *
    * @return {Promise<any>}
    */

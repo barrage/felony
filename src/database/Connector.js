@@ -21,10 +21,7 @@ export default class Connector {
    * @return {Promise<void>}
    */
   async _load() {
-    const _databases = await Felony.kernel.readRecursive(
-      `${Felony.appRootPath}/databases/`,
-      ".js",
-    );
+    const _databases = await Felony.kernel.readRecursive(`${Felony.appRootPath}/databases/`, ".js");
 
     for (const db of _databases) {
       const Imported = (await import(db)).default;
@@ -63,9 +60,9 @@ export default class Connector {
       }
 
       if (
-        this[key] &&
-        this[key] instanceof Database &&
-        typeof this[key].close === "function"
+          this[key] &&
+          this[key] instanceof Database &&
+          typeof this[key].close === "function"
       ) {
         console.warn(`Closing connection on ${key} database...`);
 

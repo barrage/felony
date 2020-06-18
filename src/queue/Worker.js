@@ -1,5 +1,5 @@
+import Redisng from "redisng";
 import Job from "../../base/Job.js";
-import Database from "../../base/Database.js";
 import { app as Felony } from "../../Felony.js";
 
 import FelonyJobDispatched from "../../support/events/FelonyJobDispatched.js";
@@ -10,6 +10,13 @@ import FelonyJobDispatched from "../../support/events/FelonyJobDispatched.js";
  * @class
  */
 export default class Worker {
+  /**
+   * Redis client used for connecting to queue database.
+   * @type {Redisng|null}
+   * @private
+   */
+  static _client = null;
+
   /**
    * Array of loaded jobs that are ready for dispatch.
    *
@@ -30,10 +37,7 @@ export default class Worker {
    * @return {Promise<void>}
    */
   async load() {
-    const jobs = await Felony.kernel.readRecursive(
-      `${Felony.appRootPath}/jobs/`,
-      ".js",
-    );
+    const jobs = await Felony.kernel.readRecursive(`${Felony.appRootPath}/jobs/`, ".js");
 
     for (const job of jobs) {
       const Imported = (await import(job)).default;
@@ -44,6 +48,24 @@ export default class Worker {
       if (Instance instanceof Job) {
         this.jobs.push(Imported);
       }
+    }
+
+    await this.connectRedis();
+  }
+
+  /**
+   * Create new redis client and store it on static _client property of the Worker.
+   *
+   * @return {Promise<void>}
+   */
+  async connectRedis() {
+    if (Felony.config.queue && Felony.config.queue.connection && typeof Felony.config.queue.connection === "object") {
+      Worker._client = new Redisng();
+      await Worker._client.connect(
+          Felony.config.queue.connection.host || "localhost",
+          Felony.config.queue.connection.port || 6379,
+      );
+      await Worker._client.select(Felony.config.queue.connection.db || 0);
     }
   }
 
@@ -75,6 +97,7 @@ export default class Worker {
 
         this.status = "finished";
       } else {
+        this.status = "finished";
         await Felony.setTimeout(null, 2000);
       }
     }
@@ -98,9 +121,12 @@ export default class Worker {
 
         // After we reach the force parameter we will just allow the force shutdown
         if (diff >= (force * 1000)) {
+          await Worker._client.close();
           return console.warn(`Worker: queue '${Felony.arguments.queue}' didn't end gracefully, job was stuck longer then Felony was waiting for it (${force}s). If this is a problem, please increase the force timeout by passing 'FORCE_SHUTDOWN={N in seconds}' argument when starting up queue listener.`);
         }
       }
+
+      await Worker._client.close();
     }
   }
 
@@ -168,7 +194,7 @@ export default class Worker {
    * @return {Promise<Job|void>}
    */
   static async pop(queue) {
-    let job = await Worker.redis().client.lpop(Worker.queue(queue));
+    let job = await Worker.redis().lpop(Worker.queue(queue));
 
     if (job && job.slice(0, 1) === '{') {
       job = JSON.parse(job);
@@ -211,7 +237,7 @@ export default class Worker {
    * @return {Promise<Job>}
    */
   static async push(job, queue) {
-    await Worker.redis().client.rpush(Worker.queue(queue), job.toString());
+    await Worker.redis().rpush(Worker.queue(queue), job.toString());
 
     return job;
   }
@@ -229,20 +255,13 @@ export default class Worker {
   /**
    * Get the redis database instance defined for queue
    *
-   * @return {Database}
+   * @return {Redisng}
    */
   static redis() {
-    if (
-      !Felony.config.queue || typeof Felony.config.queue.connection !== "string"
-    ) {
-      throw new Error(`Worker: no queue defined in the configuration`);
+    if (!Worker._client) {
+      throw new Error(`Worker: no redis connection for queue, please add configuration for queue redis connection in 'config/queue.js'`);
     }
 
-    if (!(Felony.db[Felony.config.queue.connection] instanceof Database)) {
-      throw new Error(`Worker: invalid queue connection defined`);
-    }
-
-    // @ts-ignore
-    return Felony.db[Felony.config.queue.connection];
+    return Worker._client;
   }
 }

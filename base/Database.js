@@ -6,23 +6,23 @@
  */
 export default class Database {
   /**
-   * Every loaded database will have path from where it's loaded stored here
+   * Every loaded database will have path from where it's loaded stored here (automatically filled in)
    *
    * @type string
    */
   __path = "";
 
   /**
-   * This will be the place where client for the given database
-   * is stored.
+   * This will be the place where client for the given database is stored.
    *
    * @type any
    */
   client;
 
   /**
-   * Once the database starts loading, handle method will be called
-   * to connect and store the client onto this.client.
+   * Once the database starts loading, handle method will be called,
+   * you will have to create logic that connects your database and stores
+   * the client of your database onto this.client
    *
    * @return {Promise<void>}
    */

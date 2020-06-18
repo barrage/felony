@@ -316,6 +316,9 @@ export default class Hello extends FelonyEvent {
 await Felony.event.raise(new Hello({ value: true }));
 ```
 
+Felony raises a lot of events during its runtime, you can create listeners for those events,
+take a look in `support/events/` directory to see if there is anything you might need to listen for.
+
 *IMPORTANT*: In order to not get unexpected behaviour, events must have unique name.
 
 ## Listeners
@@ -352,4 +355,101 @@ export default class HelloListener extends Listener {
 
 ## Jobs and queue
 
-TODO
+Felony comes equipped with async queue and workers for longer running or memory heavy jobs.
+
+Premise of the worker is that you will have multiple instances of your (same) application running, one (main) would be for listening HTTP requests:
+
+```shell script
+node index.js http
+```
+
+And then you would have additional worker instances:
+
+```shell script
+node index.js queue=example-queue
+``` 
+
+Let's say that you have some API endpoint where users can request export of their entire data they have in your database, this is something that would 
+probably require you to make multiple database calls, format that data, pretty it up, and it lasts longer then a regular request would last.
+
+So you make a plan to create a Job `jobs/ExportUserData.js` that would handle that export, and then later it would .zip the data and send it via email:
+
+```shell script
+node index.js command=make:job name=ExportUserData.js
+```
+
+You will end up with something like this:
+
+```js
+import Job from "felony/base/Job.js";
+export default class ExportUserData extends Job {
+  queueOn = null;
+  async handle() {}
+  async retryStrategy() {
+    return true;
+  }
+}
+```
+So you start editing the Job and finally you get something like this:
+
+```js
+import Job from "felony/base/Job.js";
+export default class ExportUserData extends Job {
+  queueOn = "long-execution-queue";
+  async handle() {
+    const userId = this.payload.userId;
+    // Here we gather Users data...
+    // Pretty it up and prepare it for zip...
+    // Zip it in a file...
+    // Email the file...
+  }
+  // This will trigger if handle method throws an error
+  async retryStrategy() {    
+    if (this.error === "Some error that means we cannot retry") {
+      return false;
+    }
+    
+    return true;
+  }
+}
+```
+
+Armed with this job, you create new route where users can request the data:
+
+```js
+// POST /get-all-my-data
+async handle(request, response) {
+  await Felony.queue.dispatch("ExportUserData.js", { userId: request.body.userId });
+
+  response.status(200).send({ message: "Your data will be compiled, and sent to you by email shortly." });
+}
+```
+
+HTTP Instance will receive this request and will dispatch the Job onto queue, Queue instance will pick it up from Redis and will instantiate the same job
+give it the payload you sent to it, and work on it in a separate process without making user wait for the response to come back.
+
+### Important notes for queues
+
+- Queue workers use redis, and you'll have to configure it: see example below
+- When you dispatch a Job, payload you pass to it will be JSON stringified, meaning you can send only what will survive that process.
+- Queues execute ONE JOB AT THE TIME, this is a good way to make them reliable, but if you want speed, you might need to add more listeners for the same queue.
+- Theoretically, your application queue workers don't have to be on the same server as your main app, they just need to have access to same Redis.
+
+### Configuring queue
+
+Create a file in `config/queue.js` or `config/{YOUR_NODE_ENV}/queue.js`:
+
+```js
+export default {
+  connection: {
+    host: "localhost", // Redis host
+    port: 6379, // Redis port
+    db: 1, // Redis db where to store jobs
+  }  
+}
+```
+
+# Additional documentation
+
+We believe that the best documentation for code is code itself, there for we encourage you to dig through our code and inspect what is happening there,
+we suggest that you start with the `base/` directory that holds classes each of the objects extends, they have a lot of comments and might help you understand a lot more then this readme.
