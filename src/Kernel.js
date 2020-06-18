@@ -117,7 +117,7 @@ export default class Kernel {
    * By the start of this method, Felony should already have the
    * whole argumentation and configuration.
    *
-   * @return {Promise<void>}
+   * @return {Promise<any>}
    */
   async bootstrap() {
     await this.signal();
@@ -127,16 +127,19 @@ export default class Kernel {
 
     // List all the loaded commands.
     if (Felony.arguments.commands) {
-      return this.console.list();
+      await this.console.list();
+      return process.exit();
     }
 
     // Execute the given command.
     if (Felony.arguments.command) {
       try {
-        return await this.console.run(Felony.arguments.command, Felony.arguments);
+        await this.console.run(Felony.arguments.command, Felony.arguments);
+        return process.exit();
       }
       catch (error) {
-        return console.error(error);
+        console.error(error);
+        return process.exit();
       }
     }
 
@@ -146,7 +149,8 @@ export default class Kernel {
         return await Felony.queue.listen(Felony.arguments.queue);
       }
       catch (error) {
-        return console.error(error);
+        console.error(error);
+        return process.exit();
       }
     }
 
@@ -161,6 +165,7 @@ export default class Kernel {
     // we will only put out entire felony object with everything loaded.
     // This is sort of a --dry-run option.
     console.dir(Felony);
+    return process.exit();
   }
 
   /**

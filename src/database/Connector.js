@@ -67,6 +67,8 @@ export default class Connector {
         this[key] instanceof Database &&
         typeof this[key].close === "function"
       ) {
+        console.warn(`Closing connection on ${key} database...`);
+
         await this[key].close();
 
         console.info(`Closed connection on ${key} database`);

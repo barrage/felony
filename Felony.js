@@ -145,11 +145,6 @@ export class Felony {
 
       // https://helmetjs.github.io/
       helmet: {},
-
-      // https://www.npmjs.com/package/express-csp-header
-      // csp: {
-      //   directives: {}
-      // }
     },
 
     /**
@@ -168,7 +163,7 @@ export class Felony {
         "content-type",
         "accept-language",
         "x-forwarded-for",
-      ]
+      ],
     },
 
     /**
@@ -240,7 +235,7 @@ export class Felony {
 
     console.log("Starting graceful shutdown procedures...");
 
-    await this.kernel.server.close();
+    await this.kernel.server.close(this.arguments.FORCE_SHUTDOWN);
     await this.queue.stop(this.arguments.FORCE_SHUTDOWN);
     await this.db._close();
 

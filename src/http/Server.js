@@ -6,7 +6,6 @@ import helmet from "helmet";
 import express from "express";
 import Route from "../../base/Route.js";
 import userAgent from "express-useragent";
-import { expressCspHeader } from "express-csp-header";
 import FelonyServerReady from "../../support/events/FelonyServerReady.js";
 import FelonyServerLoaded from "../../support/events/FelonyServerLoaded.js";
 import FelonyServerListening from "../../support/events/FelonyServerListening.js";
@@ -119,16 +118,31 @@ export default class Server {
   /**
    * Close the server listeners
    *
+   * @param {number} force In seconds
    * @return {Promise<void>}
    */
-  close() {
+  close(force = 300) {
     return new Promise((resolve) => {
       if (this.status === "listening") {
+        console.warn("Starting to close http(s) server...");
+
+        // Force the shutdown after given number of seconds
+        setTimeout(() => {
+          if (this.status !== "pending") {
+            console.log("Server is taking to long to close connection, moving on...");
+            resolve();
+          }
+        }, force * 1000);
+
         this.server.close(() => {
           console.log("Server connections closed, server terminated");
 
+          this.status = "pending";
           resolve();
         });
+      }
+      else {
+        resolve();
       }
     });
   }
@@ -141,6 +155,8 @@ export default class Server {
   async compileCallbacks(route) {
     const callbacks = [];
 
+    console.log(route.path);
+
     for (const middleware of route._middleware) {
       callbacks.push(async (request, response, next) => {
         return middleware.handle(request, response, next);
@@ -148,7 +164,7 @@ export default class Server {
     }
 
     callbacks.push(async (request, response) => {
-      return route.handle(request, response);
+      await route.handle(request, response);
     });
 
     return callbacks;
@@ -185,7 +201,6 @@ export default class Server {
     this.application.use(hpp({}));
 
     await this.setupHelmet();
-    await this.setupCsp();
     await this.setupCors();
   }
 
@@ -293,18 +308,6 @@ export default class Server {
     }
     else if (H.xssFilter && typeof H.xssFilter === "object") {
       this.application.use(helmet.xssFilter(H.xssFilter));
-    }
-  }
-
-  /**
-   * Add CSP to the server
-   * https://www.npmjs.com/package/express-csp-header
-   *
-   * @return {Promise<void>}
-   */
-  async setupCsp() {
-    if (Felony.config.server.csp && typeof Felony.config.server.csp === "object") {
-      this.application.use(expressCspHeader(Felony.config.server.csp));
     }
   }
 

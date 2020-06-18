@@ -14,11 +14,14 @@ export default class {MIDDLEWARE_NAME} extends Middleware {
    *
    * @param {any} request
    * @param {any} response
+   * @param {Function} next
    * @return {Promise<void>}
    *
    * @throws any
    *  - Throwing error will stop request propagation through
    *    other middleware and will stop it from reaching the route.
    */
-  async handle(request, response, next) {}
+  async handle(request, response, next) {
+    next();
+  }
 }
