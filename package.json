@@ -1,0 +1,38 @@
+{
+  "name": "felony",
+  "version": "0.0.1",
+  "description": "Criminally easy framework",
+  "main": "Felony.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barrage/felony.git"
+  },
+  "keywords": [
+    "node.js",
+    "framework",
+    "http",
+    "queue",
+    "commands",
+    "cli"
+  ],
+  "author": "Tibor Hudik <tibor@barrage.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/barrage/felony/issues"
+  },
+  "homepage": "https://github.com/barrage/felony#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-csp-header": "^4.0.0",
+    "express-useragent": "^1.0.13",
+    "helmet": "^3.23.1",
+    "hpp": "^0.2.3",
+    "redisng": "^2.0.0"
+  },
+  "type": "module"
+}
