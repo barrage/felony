@@ -4,7 +4,9 @@
   "description": "Criminally easy framework",
   "main": "Felony.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -30,10 +32,12 @@
     "cors": "^2.8.5",
     "helmet": "^3.23.1",
     "hpp": "^0.2.3",
-    "redisng": "^2.0.0"
+    "redisng": "^2.0.0",
+    "snyk": "^1.346.0"
   },
   "type": "module",
   "engines": {
     "node": ">=14.4.0"
-  }
+  },
+  "snyk": true
 }
