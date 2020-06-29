@@ -58,57 +58,14 @@ export default class Route {
   middleware = [];
 
   /**
-   * This array will be filled with whatever you give it under middleware
-   *
-   * @type Middleware[]
-   */
-  _middleware = [];
-
-  /**
    * Handler method that will return the response.
    *
    * @param request
+   * @param response
    * @return {Promise<any>}
    */
-  async handle(request) {
-    return {};
-  }
-
-  /**
-   * Gracefully respond to error.
-   *
-   * @param context
-   * @param error
-   */
-  async handleError(context, error) {
-    const errorResponse = {
-      status: 500,
-      body: { message: "Something went wrong" },
-    };
-
-    if (
-      error && typeof error === "object" && (error.statusCode || error.status)
-    ) {
-      errorResponse.status = parseInt(error.statusCode || error.status);
-    }
-
-    if (error && typeof error === "object" && error.message) {
-      errorResponse.body = { message: error.message };
-    }
-
-    if (Felony.arguments.debug) {
-      // @ts-ignore
-      errorResponse.body.stack = Felony.getStack(error);
-    }
-
-    console.error({
-      Route: this.__path,
-      ...errorResponse,
-      stack: Felony.getStack(error),
-    });
-
-    context.response.body = errorResponse.body;
-    // context.response.status = errorResponse.status;
+  async handle(request, response) {
+    response.status(401).send({ message: "Not found" });
   }
 
   /**
@@ -119,28 +76,14 @@ export default class Route {
   async getMiddleware() {
     const pipeline = [];
 
-    if (this.middleware instanceof Middleware) {
-      pipeline.push(this.middleware);
-    }
-    else if (typeof this.middleware === "string") {
-      const loaded = await Route.loadMiddleware(this.middleware);
-
-      if (loaded instanceof Middleware) {
-        pipeline.push(loaded);
+    if (this.middleware) {
+      if (Array.isArray(this.middleware)) {
+        for (const middleware of this.middleware) {
+          pipeline.push(await Route.loadMiddleware(middleware));
+        }
       }
-    }
-    else if (Array.isArray(this.middleware)) {
-      for (const mid of this.middleware) {
-        if (mid instanceof Middleware) {
-          pipeline.push(mid);
-        }
-        else if (typeof mid === "string") {
-          const loaded = await Route.loadMiddleware(mid);
-
-          if (loaded instanceof Middleware) {
-            pipeline.push(loaded);
-          }
-        }
+      else {
+        pipeline.push(await Route.loadMiddleware(this.middleware));
       }
     }
 
@@ -150,34 +93,40 @@ export default class Route {
   /**
    * Load the middleware and validate its correct class.
    *
-   * @param p
+   * @param {Middleware|string} middleware
    * @return {Promise<Middleware>}
    */
-  static async loadMiddleware(p) {
-    let _path = p;
-
-    if (p.slice(0, 2) === "..") {
-      _path = path.resolve(`${Felony.appRootPath}/routes`, p);
+  static async loadMiddleware(middleware) {
+    if (!middleware) {
+      throw new Error(`Route: Middleware '${middleware}' is not processable entity`);
+    }
+    else if (middleware instanceof Middleware) {
+      return middleware;
+    }
+    else if (typeof middleware !== "string") {
+      throw new Error(`Route: Middleware '${middleware}' is not processable file`);
     }
 
-    if (p.slice(0, 1) === ".") {
-      _path = path.resolve(`${Felony.appRootPath}/routes`, p);
+    let _path = middleware;
+
+    if (middleware.slice(0, 2) === "..") {
+      _path = path.resolve(`${Felony.appRootPath}/routes`, middleware);
     }
 
-    try {
-      const stat = await fs.stat(_path);
+    if (middleware.slice(0, 1) === ".") {
+      _path = path.resolve(`${Felony.appRootPath}/routes`, middleware);
+    }
 
-      if (!stat.isFile()) {
-        throw new Error(`Route: Middleware ${path} is not a processable .js file.`);
-      }
-    } catch (error) {
-      throw error;
+    const stat = await fs.stat(_path);
+
+    if (!stat.isFile()) {
+      throw new Error(`Route: Middleware '${middleware}' which resolved to '${_path}' is not a processable file.`);
     }
 
     const Imported = (await import(_path)).default || null;
 
     if (!Imported) {
-      throw new Error(`Route: Middleware ${_path} failed loading, check that it has default export.`);
+      throw new Error(`Route: Middleware '${middleware}' which resolved to '${_path}' failed loading, check that it has default export.`);
     }
 
     const Instance = new Imported();
@@ -186,6 +135,6 @@ export default class Route {
       return Instance;
     }
 
-    throw new Error(`Route: Middleware ${_path} could not be loaded.`);
+    throw new Error(`Route: Middleware '${middleware}' which resolved to '${_path}' could not be loaded.`);
   }
 }

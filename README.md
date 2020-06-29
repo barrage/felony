@@ -2,7 +2,16 @@
 
 Framework for lazy developers with security in mind that promotes good project structure and code segregation.
 
+We at Barrage started working on Felony since Node version 6. It has been our trusted helper for years now. 
+Up until now it has been an internal framework that we decided to wrap around existing and reliable solutions such as ExpressJS 
+and add our toolset and helpers for the developers working on our projects.
+
 HTTP Server is wrapper around [ExpressJS](https://expressjs.com/) framework with preloaded security defaults.
+
+This is a complete rewrite where we have started from scratch and want to have it publicly available to help anyone that deems this helpful.
+At first, we will work on it and add all the features and tools we found to be helpful for us. 
+As a potential user that means you can be a contributor as well, feel free to contact us.
+
 
 ## Requirements
 

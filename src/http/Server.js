@@ -69,7 +69,12 @@ export default class Server {
           throw new Error(`Server: route '${route}': path defined '${Instance.path}' is not valid, path has to start with '/'`);
         }
 
-        Instance._middleware = await Instance.getMiddleware();
+        // This is the way to test loading of all the middleware during the application startup
+        // we don't actually need them here, but we'll go ahead so we don't startup application
+        // with faulty middleware.
+        let middleware = await Instance.getMiddleware();
+        middleware = null;
+
         this.routes.push(Instance);
       }
 
@@ -150,19 +155,22 @@ export default class Server {
   /**
    * Internal runner for each route.
    *
-   * @param route
+   * @param {Route} route
+   * @return {Promise<array>}
    */
   async compileCallbacks(route) {
-    const callbacks = [];
-
     await Felony.event.raise(new FelonyServerBeforeRouteCompile(route));
 
-    for (const middleware of route._middleware) {
-      callbacks.push(async (request, response, next) => {
+    // Get all the middleware from the route and map them as
+    // async callbacks for express route handler.
+    const callbacks = (await route.getMiddleware())
+      .map(middleware => async (request, response, next) => {
         return middleware.handle(request, response, next);
       });
-    }
 
+
+    // After we dealt with all the middleware, we attach at the end of
+    // the callbacks our actual route handler method.
     callbacks.push(async (request, response) => {
       await route.handle(request, response);
     });

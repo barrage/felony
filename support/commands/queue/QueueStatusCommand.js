@@ -1,5 +1,5 @@
-import Worker from "../../src/queue/Worker.js";
-import Command from "../../base/Command.js";
+import Worker from "../../../src/queue/Worker.js";
+import Command from "../../../base/Command.js";
 
 /**
  * Get status of jobs in queue and failed jobs on given queues by name
