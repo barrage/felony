@@ -1,4 +1,5 @@
 import path from "path";
+import { fileURLToPath } from 'url';
 import Kernel from "./src/Kernel.js";
 import Bus from "./src/events/Bus.js";
 import Worker from "./src/queue/Worker.js";
@@ -193,12 +194,9 @@ export class Felony {
    *
    * @param {string} appRootPath
    */
-  constructor(appRootPath = path.resolve('./')) {
+  constructor(appRootPath = process.cwd()) {
     this.appRootPath = appRootPath;
-
-    this.felonyPath = import.meta.url
-        .replace("file://", "")
-        .replace("/Felony.js", "");
+    this.felonyPath = path.dirname(fileURLToPath(import.meta.url));
   }
 
   /**
@@ -229,7 +227,6 @@ export class Felony {
 
     // Load the jobs
     await this.queue.load();
-
     // Lift off!
     await this.kernel.bootstrap();
   }

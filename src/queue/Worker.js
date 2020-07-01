@@ -1,3 +1,4 @@
+import path from "path";
 import Redis from "ioredis";
 import Job from "../../base/Job.js";
 import { app as Felony } from "../../Felony.js";
@@ -37,11 +38,11 @@ export default class Worker {
    * @return {Promise<void>}
    */
   async load() {
-    const jobs = await Felony.kernel.readRecursive(`${Felony.appRootPath}/jobs/`, ".js");
+    const jobs = await Felony.kernel.readRecursive(path.resolve(Felony.appRootPath, "jobs"));
 
     for (const job of jobs) {
       const Imported = (await import(job)).default;
-      Imported.__path = job.replace(`${Felony.appRootPath}/jobs/`, "");
+      Imported.__path = job.replace(path.resolve(Felony.appRootPath, "jobs") + "/", "");
 
       const Instance = new Imported();
 

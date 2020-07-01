@@ -1,3 +1,4 @@
+import path from "path";
 import Database from "../../base/Database.js";
 import { app as Felony } from "../../Felony.js";
 
@@ -21,7 +22,7 @@ export default class Connector {
    * @return {Promise<void>}
    */
   async _load() {
-    const _databases = await Felony.kernel.readRecursive(`${Felony.appRootPath}/databases/`, ".js");
+    const _databases = await Felony.kernel.readRecursive(path.resolve(Felony.appRootPath, "databases"));
 
     for (const db of _databases) {
       const Imported = (await import(db)).default;

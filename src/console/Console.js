@@ -1,3 +1,4 @@
+import path from "path";
 import Command from "../../base/Command.js";
 import { app as Felony } from "../../Felony.js";
 
@@ -76,8 +77,8 @@ export default class Console {
    * @return {Promise<void>}
    */
   async load() {
-    const commands = (await Felony.kernel.readRecursive(`${Felony.appRootPath}/commands/`, ".js"))
-        .concat(await Felony.kernel.readRecursive(`${Felony.felonyPath}/support/commands/`, ".js"));
+    const commands = (await Felony.kernel.readRecursive(path.resolve(Felony.appRootPath, "commands")))
+        .concat(await Felony.kernel.readRecursive(path.resolve(Felony.felonyPath, "support", "commands")));
 
     for (const command of commands) {
       const Imported = (await import(command)).default;

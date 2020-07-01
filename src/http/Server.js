@@ -1,4 +1,5 @@
 import hpp from "hpp";
+import path from "path";
 import cors from "cors";
 import http from "http";
 import https from "https";
@@ -52,7 +53,7 @@ export default class Server {
    * @return {Promise<void>}
    */
   async load() {
-    const routes = await Felony.kernel.readRecursive(`${Felony.appRootPath}/routes/`, [".js"]);
+    const routes = await Felony.kernel.readRecursive(path.resolve(Felony.appRootPath, "routes"));
 
     for (const route of routes) {
       const Imported = (await import(route)).default;
