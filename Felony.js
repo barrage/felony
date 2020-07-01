@@ -196,11 +196,9 @@ export class Felony {
   constructor(appRootPath = path.resolve('./')) {
     this.appRootPath = appRootPath;
 
-    // Hacky way to get the path where felony is installed in the project
-    const fullMsg = new Error().stack.toString();
-    const beginning = fullMsg.indexOf('file:///') + 8;
-    const end = fullMsg.indexOf('\/Felony.js');
-    this.felonyPath = `/${fullMsg.substr(beginning, end - beginning)}`;
+    this.felonyPath = import.meta.url
+        .replace("file://", "")
+        .replace("/Felony.js", "");
   }
 
   /**

@@ -37,6 +37,9 @@
     "uuid": "^8.2.0"
   },
   "type": "module",
+  "bin": {
+    "felony": "./cli.js"
+  },
   "engines": {
     "node": ">=14.4.0"
   },

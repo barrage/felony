@@ -32,13 +32,15 @@ Install Felony as a dependency of your project:
 npm install --save felony
 ```
 
-Create `index.js` file:
+Run `felony` in your terminal, and you should get back the Felony object. If that happens, you are all set!
+
+How every, you can create `index.js` file:
 ```js
 import { app as Felony } from "felony";
 Felony.commit();
 ```
 
-And that's it, you will now have access to Felony right away, give it a try:
+And then you will have access to Felony through it:
 
 ```shell script
 node index.js
@@ -51,6 +53,8 @@ To start HTTP server simply pass the `http` argument to `index.js`:
 ```shell script
 node index.js http
 ```
+
+*NOTE*: you can use `felony` command instead of `node index.js`.
 
 ## ExpressJS
 
