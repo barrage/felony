@@ -1,6 +1,6 @@
 {
   "name": "felony",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Criminally easy framework",
   "main": "Felony.js",
   "scripts": {
