@@ -1,4 +1,4 @@
-import Redisng from "redisng";
+import Redis from "ioredis";
 import Job from "../../base/Job.js";
 import { app as Felony } from "../../Felony.js";
 
@@ -12,7 +12,7 @@ import FelonyJobDispatched from "../../support/events/FelonyJobDispatched.js";
 export default class Worker {
   /**
    * Redis client used for connecting to queue database.
-   * @type {Redisng|null}
+   * @type {Redis|null}
    * @private
    */
   static _client = null;
@@ -58,15 +58,17 @@ export default class Worker {
    *
    * @return {Promise<void>}
    */
-  async connectRedis() {
-    if (Felony.config.queue && Felony.config.queue.connection && typeof Felony.config.queue.connection === "object") {
-      Worker._client = new Redisng();
-      await Worker._client.connect(
-          Felony.config.queue.connection.host || "localhost",
-          Felony.config.queue.connection.port || 6379,
-      );
-      await Worker._client.select(Felony.config.queue.connection.db || 0);
-    }
+  connectRedis() {
+    return new Promise((resolve) => {
+      if (Felony.config.queue && Felony.config.queue.connection) {
+        Worker._client = new Redis(Felony.config.queue.connection);
+
+        Worker._client.on("ready", () => resolve());
+      }
+      else {
+        resolve();
+      }
+    });
   }
 
   /**
@@ -114,19 +116,24 @@ export default class Worker {
       const started = new Date();
 
       while (this.status !== "finished") {
-        await Felony.setTimeout(null, 2000);
+        await Felony.setTimeout(null, 500);
 
         const now = new Date();
         const diff = now.valueOf() - started.valueOf();
 
         // After we reach the force parameter we will just allow the force shutdown
         if (diff >= (force * 1000)) {
-          await Worker._client.close();
+          if (Worker._client) {
+            await Worker._client.disconnect();
+          }
+
           return console.warn(`Worker: queue '${Felony.arguments.queue}' didn't end gracefully, job was stuck longer then Felony was waiting for it (${force}s). If this is a problem, please increase the force timeout by passing 'FORCE_SHUTDOWN={N in seconds}' argument when starting up queue listener.`);
         }
       }
 
-      await Worker._client.close();
+      if (Worker._client) {
+        await Worker._client.disconnect();
+      }
     }
   }
 
@@ -141,7 +148,6 @@ export default class Worker {
     let loaded = null;
 
     for (const Imported of this.jobs) {
-      // @ts-ignore
       if (Imported.__path !== job) {
         continue;
       }
@@ -162,7 +168,7 @@ export default class Worker {
   /**
    * Dispatch job by its internal URL to the queue.
    *
-   * @param {string} job
+   * @param {string|object[]} job
    * @param {object} payload
    * @param {string|null} [queue]
    * @return {Promise<Job>}
@@ -182,9 +188,70 @@ export default class Worker {
       return Worker.push(loaded, queue);
     }
 
-    await Felony.event.raise(new FelonyJobDispatched(loaded));
-
     return loaded;
+  }
+
+  /**
+   * Batch dispatch jobs onto queue all at once.
+   *
+   * @param {object[]} jobs
+   * @return {Promise<{
+   *     executed: Job[]
+   *     dispatched: object[],
+   *     errored: object[]
+   * }>}
+   */
+  async batchDispatch(jobs) {
+    const multi = Worker.redis().multi();
+    const executed = [];
+    const pending = [];
+    const errored = [];
+
+    // Loop through all sent jobs and prepare them for dispatch
+    for (const item of jobs) {
+      try {
+        const loaded = await this.getJob(item.job, item.payload || {});
+
+        if (!(loaded instanceof Job)) {
+          throw new Error(`Queue: ${item.job} is not a valid job`);
+        }
+
+        item.job = loaded;
+
+        if (typeof item.queue !== "string" && item.queue !== false) {
+          item.queue = loaded.queueOn;
+        }
+
+        if (typeof item.queue === "string") {
+          multi.rpush(Worker.queue(item.queue), loaded.toString());
+          pending.push(item);
+        }
+        else {
+          executed.push(await loaded.run());
+        }
+      }
+      catch (error) {
+        errored.push({ ...item, error });
+      }
+    }
+
+    // Execute multi redis command that will dispatch them all,
+    // loop through results and verify everything was dispatched,
+    // if not, move the job to errored list and return it all back.
+    const results = await multi.exec();
+
+    for (let i = 0; i < results.length; i++) {
+      if (results[i][0] !== null || isNaN(results[i][1])) {
+        errored.push({ ...pending[i], error: results[i][1] });
+        pending[i] = null;
+      }
+    }
+
+    return {
+      executed,
+      dispatched: pending.filter((item) => item !== null),
+      errored,
+    };
   }
 
   /**
@@ -204,6 +271,7 @@ export default class Worker {
       const _job = await Felony.queue.getJob(job.__path, job.payload);
 
       if (_job) {
+        _job.id = job.id;
         _job.retries = job.retries || 0;
         _job.runs = job.runs || 0;
         _job.error = job.error;
@@ -239,7 +307,33 @@ export default class Worker {
   static async push(job, queue) {
     await Worker.redis().rpush(Worker.queue(queue), job.toString());
 
+    await Felony.event.raise(new FelonyJobDispatched(job));
+
     return job;
+  }
+
+  /**
+   * Subscribe and listen for messages for queue
+   *
+   * @param {string} queue
+   * @param {Function} callback
+   */
+  subscribe(queue, callback) {
+    if (! queue || typeof queue !== "string") {
+      throw new Error("Worker: queue defined for subscribe must be string");
+    }
+
+    if (!callback || typeof callback !== "function") {
+      callback = (channel, message) => {
+        console.log(`Queue: got message from '${channel}':`);
+        console.log(message);
+      }
+    }
+
+    Worker.redis().subscribe(Worker.queue(queue));
+    Worker.redis().on("message", (channel, message) => {
+      callback(channel, JSON.parse(message));
+    });
   }
 
   /**
@@ -255,7 +349,7 @@ export default class Worker {
   /**
    * Get the redis database instance defined for queue
    *
-   * @return {Redisng}
+   * @return {Redis}
    */
   static redis() {
     if (!Worker._client) {

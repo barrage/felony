@@ -28,7 +28,6 @@ export default class Bus {
           continue;
         }
 
-        // @ts-ignore
         const Instance = new L(event);
 
         if (typeof Instance.handle === "function") {
@@ -49,8 +48,17 @@ export default class Bus {
       ".js",
     );
 
-    for (const db of listeners) {
-      const Imported = await import(db);
+    const _listeners = await Felony.kernel.readRecursive(
+        `${Felony.felonyPath}/support/listeners/`,
+        ".js",
+    );
+
+    for (const listener of _listeners) {
+      listeners.push(listener);
+    }
+
+    for (const listener of listeners) {
+      const Imported = await import(listener);
 
       if (Imported && Imported.default && Array.isArray(Imported.default.listen)) {
         this.listeners.push(Imported.default);

@@ -183,6 +183,7 @@ export class Felony {
       //   host: "localhost",
       //   port: 6379,
       //   db: 0,
+      //   password: "auth-password-for-redis",
       // }
     },
   };

@@ -25,7 +25,6 @@ export default class Make extends Command {
 
     for (let i = 0; i < stub.length; i++) {
       for (const variable in replacements) {
-        // @ts-ignore
         stub[i] = stub[i].replace(`{${variable}}`, replacements[variable]);
       }
     }

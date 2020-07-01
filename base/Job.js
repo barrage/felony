@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { app as Felony } from "../Felony.js";
 import FelonyJobFailed from "../support/events/FelonyJobFailed.js";
 import FelonyJobStarted from "../support/events/FelonyJobStarted.js";
@@ -22,6 +23,13 @@ export default class Job {
    * @type string
    */
   __path = "";
+
+  /**
+   * Job id that will be used for emitting messages through pub/sub
+   *
+   * @type string
+   */
+  id = uuidv4();
 
   /**
    * Number of retries this job has (after the initial try).
@@ -182,6 +190,7 @@ export default class Job {
   toJson() {
     return JSON.parse(JSON.stringify({
       __path: this.__path,
+      id: this.id,
       retries: this.retries,
       runs: this.runs,
       payload: this.payload,

@@ -53,7 +53,6 @@ export default class MakeCommandCommand extends Make {
       throw new Error(`MakeCommandCommand: Invalid command signature provided`);
     }
 
-    // @ts-ignore
     if (Felony.kernel.console.commands.filter((c) => c.signature === this.payload.signature).length > 0) {
       throw new Error(`MakeCommandCommand: Provided signature is already in use`);
     }
