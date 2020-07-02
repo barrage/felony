@@ -1,8 +1,6 @@
 import path from "path";
 import Redis from "ioredis";
 import Job from "../../base/Job.js";
-import { app as Felony } from "../../Felony.js";
-
 import FelonyJobDispatched from "../../support/events/FelonyJobDispatched.js";
 
 /**
@@ -33,16 +31,26 @@ export default class Worker {
   status = "inactive";
 
   /**
+   * @param {Felony} felony
+   */
+  constructor(felony) {
+    /**
+     * @type Felony
+     */
+    this.felony = felony;
+  }
+
+  /**
    * Load all the available jobs onto the worker.
    *
    * @return {Promise<void>}
    */
   async load() {
-    const jobs = await Felony.kernel.readRecursive(path.resolve(Felony.appRootPath, "jobs"));
+    const jobs = await this.felony.kernel.readRecursive(path.resolve(this.felony.appRootPath, "jobs"));
 
     for (const job of jobs) {
       const Imported = (await import(job)).default;
-      Imported.__path = job.replace(path.resolve(Felony.appRootPath, "jobs") + "/", "");
+      Imported.__path = job.replace(`${path.resolve(this.felony.appRootPath, "jobs")}/`, "");
 
       const Instance = new Imported();
 
@@ -61,8 +69,8 @@ export default class Worker {
    */
   connectRedis() {
     return new Promise((resolve) => {
-      if (Felony.config.queue && Felony.config.queue.connection) {
-        Worker._client = new Redis(Felony.config.queue.connection);
+      if (this.felony.config.queue && this.felony.config.queue.connection) {
+        Worker._client = new Redis(this.felony.config.queue.connection);
 
         Worker._client.on("ready", () => resolve());
       }
@@ -79,9 +87,9 @@ export default class Worker {
    * @return {Promise<void>}
    */
   async listen(queue) {
-    console.log(`Worker: listening for incoming jobs on '${queue}'.`);
+    this.felony.log.log(`Worker: listening for incoming jobs on '${queue}'.`);
 
-    while (!Felony.shuttingDown) {
+    while (!this.felony.shuttingDown) {
       this.status = "listening";
 
       let job = await Worker.pop(queue);
@@ -101,7 +109,7 @@ export default class Worker {
         this.status = "finished";
       } else {
         this.status = "finished";
-        await Felony.setTimeout(null, 2000);
+        await this.felony.setTimeout(null, 2000);
       }
     }
   }
@@ -117,7 +125,7 @@ export default class Worker {
       const started = new Date();
 
       while (this.status !== "finished") {
-        await Felony.setTimeout(null, 500);
+        await this.felony.setTimeout(null, 500);
 
         const now = new Date();
         const diff = now.valueOf() - started.valueOf();
@@ -128,7 +136,7 @@ export default class Worker {
             await Worker._client.disconnect();
           }
 
-          return console.warn(`Worker: queue '${Felony.arguments.queue}' didn't end gracefully, job was stuck longer then Felony was waiting for it (${force}s). If this is a problem, please increase the force timeout by passing 'FORCE_SHUTDOWN={N in seconds}' argument when starting up queue listener.`);
+          return console.warn(`Worker: queue '${this.felony.arguments.queue}' didn't end gracefully, job was stuck longer then Felony was waiting for it (${force}s). If this is a problem, please increase the force timeout by passing 'FORCE_SHUTDOWN={N in seconds}' argument when starting up queue listener.`);
         }
       }
 
@@ -264,12 +272,12 @@ export default class Worker {
   static async pop(queue) {
     let job = await Worker.redis().lpop(Worker.queue(queue));
 
-    if (job && job.slice(0, 1) === '{') {
+    if (job && job.slice(0, 1) === "{") {
       job = JSON.parse(job);
     }
 
     if (job) {
-      const _job = await Felony.queue.getJob(job.__path, job.payload);
+      const _job = await this.felony.queue.getJob(job.__path, job.payload);
 
       if (_job) {
         _job.id = job.id;
@@ -308,7 +316,7 @@ export default class Worker {
   static async push(job, queue) {
     await Worker.redis().rpush(Worker.queue(queue), job.toString());
 
-    await Felony.event.raise(new FelonyJobDispatched(job));
+    await this.felony.event.raise(new FelonyJobDispatched(job));
 
     return job;
   }
@@ -320,7 +328,7 @@ export default class Worker {
    * @param {Function} callback
    */
   subscribe(queue, callback) {
-    if (! queue || typeof queue !== "string") {
+    if (!queue || typeof queue !== "string") {
       throw new Error("Worker: queue defined for subscribe must be string");
     }
 
@@ -328,7 +336,7 @@ export default class Worker {
       callback = (channel, message) => {
         console.log(`Queue: got message from '${channel}':`);
         console.log(message);
-      }
+      };
     }
 
     Worker.redis().subscribe(Worker.queue(queue));
@@ -354,7 +362,7 @@ export default class Worker {
    */
   static redis() {
     if (!Worker._client) {
-      throw new Error(`Worker: no redis connection for queue, please add configuration for queue redis connection in 'config/queue.js'`);
+      throw new Error("Worker: no redis connection for queue, please add configuration for queue redis connection in 'config/queue.js'");
     }
 
     return Worker._client;

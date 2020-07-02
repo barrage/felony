@@ -1,7 +1,6 @@
 import path from "path";
 import { promises as fs } from "fs";
 import Middleware from "./Middleware.js";
-import { app as Felony } from "../Felony.js";
 
 /**
  * Base route class that defines basic attributes that the route will have to have.

@@ -1,5 +1,4 @@
 import Make from "./Make.js";
-import { app as Felony } from "../../../Felony.js";
 const STUB_PATH = `${Felony.felonyPath}/stubs/Route.stub`;
 
 /**
@@ -43,27 +42,27 @@ export default class MakeRouteCommand extends Make {
    */
   async handle() {
     if (
-      typeof this.payload.name !== "string" ||
-      !this.payload.name.endsWith(".js")
+      typeof this.payload.name !== "string"
+      || !this.payload.name.endsWith(".js")
     ) {
-      throw new Error(`MakeRouteCommand: Invalid route name provided`);
+      throw new Error("MakeRouteCommand: Invalid route name provided");
     }
 
     if (
-      typeof this.payload.method !== "string" ||
-      ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTION"].indexOf(
-          this.payload.method.toUpperCase(),
-        ) === -1
+      typeof this.payload.method !== "string"
+      || ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTION"].indexOf(
+        this.payload.method.toUpperCase(),
+      ) === -1
     ) {
-      throw new Error(`MakeRouteCommand: Invalid method for the route`);
+      throw new Error("MakeRouteCommand: Invalid method for the route");
     }
 
     if (typeof this.payload.path !== "string") {
-      throw new Error(`MakeRouteCommand: No path provided for route`);
+      throw new Error("MakeRouteCommand: No path provided for route");
     }
 
     if (!this.payload.path.startsWith("/")) {
-      throw new Error(`MakeRouteCommand: Route path must start with /`);
+      throw new Error("MakeRouteCommand: Route path must start with /");
     }
 
     const replacements = {

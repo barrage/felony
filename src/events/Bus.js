@@ -1,6 +1,5 @@
 import path from "path";
 import Listener from "../../base/Listener.js";
-import { app as Felony } from "../../Felony.js";
 import FelonyEvent from "../../base/FelonyEvent.js";
 
 /**
@@ -15,6 +14,16 @@ export default class Bus {
    * @type {Listener[]}
    */
   listeners = [];
+
+  /**
+   * @param {Felony} felony
+   */
+  constructor(felony) {
+    /**
+     * @type Felony
+     */
+    this.felony = felony;
+  }
 
   /**
    * Dispatch event from anywhere in the application.
@@ -44,8 +53,8 @@ export default class Bus {
    * @return {Promise<void>}
    */
   async load() {
-    const listeners = await Felony.kernel.readRecursive(path.resolve(Felony.appRootPath, 'listeners'));
-    const _listeners = await Felony.kernel.readRecursive(path.resolve(Felony.felonyPath, 'support', 'listeners'));
+    const listeners = await this.felony.kernel.readRecursive(path.resolve(this.felony.appRootPath, "listeners"));
+    const _listeners = await this.felony.kernel.readRecursive(path.resolve(this.felony.felonyPath, "support", "listeners"));
 
     for (const listener of _listeners) {
       listeners.push(listener);

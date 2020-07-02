@@ -1,5 +1,4 @@
 import Make from "./Make.js";
-import { app as Felony } from "../../../Felony.js";
 const STUB_PATH = `${Felony.felonyPath}/stubs/Command.stub`;
 
 /**
@@ -43,18 +42,18 @@ export default class MakeCommandCommand extends Make {
    */
   async handle() {
     if (
-      typeof this.payload.name !== "string" ||
-      !this.payload.name.endsWith(".js")
+      typeof this.payload.name !== "string"
+      || !this.payload.name.endsWith(".js")
     ) {
-      throw new Error(`MakeCommandCommand: Invalid command name provided`);
+      throw new Error("MakeCommandCommand: Invalid command name provided");
     }
 
     if (typeof this.payload.signature !== "string") {
-      throw new Error(`MakeCommandCommand: Invalid command signature provided`);
+      throw new Error("MakeCommandCommand: Invalid command signature provided");
     }
 
     if (Felony.kernel.console.commands.filter((c) => c.signature === this.payload.signature).length > 0) {
-      throw new Error(`MakeCommandCommand: Provided signature is already in use`);
+      throw new Error("MakeCommandCommand: Provided signature is already in use");
     }
 
     const replacements = {

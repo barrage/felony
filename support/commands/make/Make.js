@@ -1,7 +1,6 @@
 import path from "path";
 import { promises as fs } from "fs";
 import Command from "../../../base/Command.js";
-import { app as Felony } from "../../../Felony.js";
 
 /**
  * Base generator command class
@@ -16,7 +15,7 @@ export default class Make extends Command {
    * @param {object} replacements
    * @return {Promise<string>}
    */
-  async createFile(p, replacements){
+  async createFile(p, replacements) {
     const _path = path.resolve(p);
 
     const loaded = await fs.readFile(_path);

@@ -1,6 +1,5 @@
 import path from "path";
 import Command from "../../base/Command.js";
-import { app as Felony } from "../../Felony.js";
 
 /**
  * Handler for console commands that will preload all commands and handle their running.
@@ -14,13 +13,20 @@ export default class Console {
   commands = [];
 
   /**
+   * @param {Kernel} kernel
+   */
+  constructor(kernel) {
+    this.kernel = kernel;
+  }
+
+  /**
    * List all the available commands loaded in the console.
    *
    * @return {Promise<void>}
    */
   async list() {
-    let commands = [];
-    let integrated = [];
+    const commands = [];
+    const integrated = [];
 
     for (const Cmd of this.commands) {
       commands.push({
@@ -34,20 +40,25 @@ export default class Console {
       }
     }
 
-    commands = commands.sort((a, b) => {
-      return a.command.localeCompare(b.command);
-    });
+    const I = commands
+      .filter((c) => integrated.indexOf(c.command) !== -1)
+      .sort((a, b) => {
+        return a.command.localeCompare(b.command);
+      });
 
-    const I = commands.filter((c) => integrated.indexOf(c.command) !== -1);
-    const A = commands.filter((c) => integrated.indexOf(c.command) === -1);
+    const A = commands
+      .filter((c) => integrated.indexOf(c.command) === -1)
+      .sort((a, b) => {
+        return a.command.localeCompare(b.command);
+      });
 
-    console.log(` `);
-    console.log(`| Integrated commands:`);
+    console.log(" ");
+    console.log("| Integrated commands:");
     console.table(I);
 
     if (A.length) {
-      console.log(` `);
-      console.log(`| Application commands:`);
+      console.log(" ");
+      console.log("| Application commands:");
       console.table(A);
     }
   }
@@ -65,7 +76,7 @@ export default class Console {
         continue;
       }
 
-      return new Cmd(payload, Felony.arguments.command === Cmd.signature).handle();
+      return new Cmd(payload, this.kernel.felony.arguments.command === Cmd.signature).handle();
     }
 
     throw new Error(`Unresolved command with signature ${signature}`);
@@ -77,17 +88,17 @@ export default class Console {
    * @return {Promise<void>}
    */
   async load() {
-    const commands = (await Felony.kernel.readRecursive(path.resolve(Felony.appRootPath, "commands")))
-        .concat(await Felony.kernel.readRecursive(path.resolve(Felony.felonyPath, "support", "commands")));
+    const commands = (await this.kernel.readRecursive(path.resolve(this.kernel.felony.appRootPath, "commands")))
+      .concat(await this.kernel.readRecursive(path.resolve(this.kernel.felony.felonyPath, "support", "commands")));
 
     for (const command of commands) {
       const Imported = (await import(command)).default;
 
       if (Imported && Imported.signature) {
         if (Imported.integrated) {
-          Imported.__path = command.replace(`${Felony.felonyPath}/`, "Felony/");
+          Imported.__path = command.replace(`${this.kernel.felony.felonyPath}/`, "Felony/");
         } else {
-          Imported.__path = command.replace(`${Felony.appRootPath}/`, "");
+          Imported.__path = command.replace(`${this.kernel.felony.appRootPath}/`, "");
         }
 
         this.commands.push(Imported);

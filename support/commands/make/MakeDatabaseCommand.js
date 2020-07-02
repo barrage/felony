@@ -1,5 +1,4 @@
 import Make from "./Make.js";
-import { app as Felony } from "../../../Felony.js";
 const STUB_PATH = `${Felony.felonyPath}/stubs/Database.stub`;
 
 /**
@@ -43,10 +42,10 @@ export default class MakeDatabaseCommand extends Make {
    */
   async handle() {
     if (
-      typeof this.payload.name !== "string" ||
-      !this.payload.name.endsWith(".js")
+      typeof this.payload.name !== "string"
+      || !this.payload.name.endsWith(".js")
     ) {
-      throw new Error(`MakeDatabaseCommand: Invalid database name provided`);
+      throw new Error("MakeDatabaseCommand: Invalid database name provided");
     }
 
     const replacements = {

@@ -1,7 +1,8 @@
 import path from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 import Kernel from "./src/Kernel.js";
 import Bus from "./src/events/Bus.js";
+import Logger from "./src/log/Logger.js";
 import Worker from "./src/queue/Worker.js";
 import Connector from "./src/database/Connector.js";
 
@@ -9,6 +10,26 @@ import FelonyDefined from "./support/events/FelonyDefined.js";
 import FelonyGotArguments from "./support/events/FelonyGotArguments.js";
 import FelonyLoadedDatabases from "./support/events/FelonyLoadedDatabases.js";
 import FelonyGotConfiguration from "./support/events/FelonyGotConfiguration.js";
+
+/**
+ * Display the help in cli
+ */
+const help = function help() {
+  console.log("Usage felony <command> [args]");
+  console.log("Or node index.js <command> [args] (You have to import Felony in your index)");
+  console.log(" ");
+  console.log("where <command> is one of:");
+  console.log("  commands, command, http, queue");
+  console.log(" ");
+  console.log("felony commands                               Displays list of all the commands integrated in Felony and found in 'commands/' directory");
+  console.log("felony command=<command signature> [args]     Runs the given command with passed arguments");
+  console.log("felony http                                   Starts the HTTP server (express) with loaded routes found in 'routes/' directory");
+  console.log("felony queue=<queue name>                     Runs queue listener for given queue name.");
+  console.log(" ");
+  console.log("Arguments: Everything passed as arguments in cli will be available in global object 'Felony.arguments'.");
+  console.log(" ");
+  console.log("Documentation: https://github.com/barrage/felony#readme");
+};
 
 /**
  * Felony framework global class with everything exposed for global usage.
@@ -47,24 +68,31 @@ export class Felony {
   /**
    * @type Kernel
    */
-  kernel = new Kernel();
+  kernel = new Kernel(this);
 
   /**
    * @type Bus
    */
-  event = new Bus();
+  event = new Bus(this);
 
   /**
    * @type Worker
    */
-  queue = new Worker();
+  queue = new Worker(this);
 
   /**
    * Database connector
    *
    * @type Object
    */
-  db = new Connector();
+  db = new Connector(this);
+
+  /**
+   * Internal logging instance that can be silenced
+   *
+   * @type {Logger}
+   */
+  log = new Logger(this);
 
   /**
    * Arguments passed from the CLI to Felony.
@@ -79,7 +107,7 @@ export class Felony {
      *
      * @type number
      */
-    "FORCE_SHUTDOWN": 5,
+    FORCE_SHUTDOWN: 5,
     /**
      * Tells the Felony to start HTTP server
      *
@@ -173,19 +201,19 @@ export class Felony {
      *
      * OR config/environments/{YOUR_ENV}/queue.js
      *
-     * @type object
+     * @type Object
      */
     queue: {
       /**
        * Queue requires this connection information
        * for the redis instance.
        */
-      // connection: {
-      //   host: "localhost",
-      //   port: 6379,
-      //   db: 0,
-      //   password: "auth-password-for-redis",
-      // }
+      connection: {
+        host: "localhost",
+        port: 6379,
+        db: 0,
+        // password: "auth-password-for-redis",
+      },
     },
   };
 
@@ -193,10 +221,18 @@ export class Felony {
    * Construct the framework
    *
    * @param {string} appRootPath
+   * @param {object} args Suppresses almost all the logs
    */
-  constructor(appRootPath = process.cwd()) {
+  constructor(appRootPath = process.cwd(), args = {}) {
     this.appRootPath = appRootPath;
     this.felonyPath = path.dirname(fileURLToPath(import.meta.url));
+
+    if (args && typeof args === "object") {
+      this.arguments = { ...this.arguments, ...args };
+    }
+
+    // Load the arguments
+    this.arguments = this.kernel.arguments(this.arguments);
   }
 
   /**
@@ -207,14 +243,18 @@ export class Felony {
    * @return {Promise<void>}
    */
   async commit() {
+    if (
+      this.arguments["--help"] === true
+      || this.arguments["-h"] === true
+    ) {
+      return help();
+    }
+
     this.environment = process.env.NODE_ENV || "development";
 
     // This has to happen first in order to be able to catch events.
     await this.event.load();
     await this.event.raise(new FelonyDefined());
-
-    // Cache the arguments
-    this.arguments = await this.kernel.arguments();
     await this.event.raise(new FelonyGotArguments());
 
     // Cache the configurations
@@ -227,6 +267,7 @@ export class Felony {
 
     // Load the jobs
     await this.queue.load();
+
     // Lift off!
     await this.kernel.bootstrap();
   }
@@ -239,7 +280,7 @@ export class Felony {
   async down() {
     this.shuttingDown = true;
 
-    console.log("Starting graceful shutdown procedures...");
+    console.log("Starting graceful shutdown...");
 
     await this.kernel.server.close(this.arguments.FORCE_SHUTDOWN);
     await this.queue.stop(this.arguments.FORCE_SHUTDOWN);
@@ -247,7 +288,7 @@ export class Felony {
 
     console.log("Bye");
 
-    process.exit();
+    process.exit(0);
   }
 
   /**
@@ -275,10 +316,8 @@ export class Felony {
     }
 
     return error.stack.split("\n")
-      .map((line) =>
-        line.trim()
-          .replace("at ", "")
-      )
+      .map((line) => line.trim()
+        .replace("at ", ""))
       .filter((line, key) => key > len);
   }
 
@@ -293,4 +332,7 @@ export class Felony {
   }
 }
 
-export const app = globalThis.Felony = new Felony();
+const app = new Felony();
+globalThis.Felony = app;
+
+export { app };

@@ -1,5 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
-import { app as Felony } from "../Felony.js";
+import { v4 as uuidV4 } from "uuid";
 import FelonyJobFailed from "../support/events/FelonyJobFailed.js";
 import FelonyJobStarted from "../support/events/FelonyJobStarted.js";
 import FelonyJobFinished from "../support/events/FelonyJobFinished.js";
@@ -29,7 +28,7 @@ export default class Job {
    *
    * @type string
    */
-  id = uuidv4();
+  id = uuidV4();
 
   /**
    * Number of retries this job has (after the initial try).

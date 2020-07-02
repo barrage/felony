@@ -1,7 +1,7 @@
+import path from "path";
 import { promises as fs } from "fs";
 import Server from "./http/Server.js";
 import Console from "./console/Console.js";
-import { app as Felony } from "../Felony.js";
 
 /**
  * Framework kernel that will raise actual workers and gather the configurations.
@@ -14,22 +14,32 @@ export default class Kernel {
    *
    * @type Server
    */
-  server = new Server();
+  server = new Server(this);
 
   /**
    * Console instance that will handle loading and running of the commands
    *
    * @type Console
    */
-  console = new Console();
+  console = new Console(this);
+
+  /**
+   * @param {Felony} felony
+   */
+  constructor(felony) {
+    /**
+     * @type Felony
+     */
+    this.felony = felony;
+  }
 
   /**
    * Parse command line arguments passed to node app
    *
-   * @return {Promise<object>}
+   * @param {object} args
+   * @return {object}
    */
-  async arguments() {
-    const args = Felony.arguments; // Make sure we got all the default arguments
+  arguments(args) {
     const argv = process.argv ? process.argv : [];
 
     for (const arg of argv) {
@@ -64,21 +74,21 @@ export default class Kernel {
   async config() {
     // Load all the files from config directory, ignore the environment directory,
     // we will take care of that one later.
-    const files = await this.readRecursive(`${Felony.appRootPath}/config/`, [".js"], ["environments"]);
+    const files = await this.readRecursive(path.resolve(this.felony.appRootPath, "config"), [".js"], ["environments"]);
 
     // Taking in consideration environment directory here, we will scan the current env
     // directory and attach files from it at the end so they can override any global configurations.
-    if (Felony.environment) {
-      const path = `${Felony.appRootPath}/config/environments/${Felony.environment}/`;
+    if (this.felony.environment) {
+      const p = path.resolve(this.felony.appRootPath, "config", "environments", this.felony.environment);
 
       try {
-        const stat = await fs.stat(path);
+        const stat = await fs.stat(p);
 
         if (stat.isDirectory()) {
-          const envFiles = await this.readRecursive(path, ".js");
+          const envFiles = await this.readRecursive(p);
 
           for (const file of envFiles) {
-            files.push(file, path);
+            files.push(file);
           }
         }
       } catch (error) {
@@ -86,7 +96,7 @@ export default class Kernel {
       }
     }
 
-    let config = Felony.config;
+    let config = this.felony.config;
 
     for (const file of files) {
       const name = file.split("/")[file.split("/").length - 1].split(".")[0];
@@ -122,36 +132,36 @@ export default class Kernel {
     await this.console.load();
 
     // List all the loaded commands.
-    if (Felony.arguments.commands) {
+    if (this.felony.arguments.commands) {
       await this.console.list();
       return process.exit();
     }
 
     // Execute the given command.
-    if (Felony.arguments.command) {
+    if (this.felony.arguments.command) {
       try {
-        await this.console.run(Felony.arguments.command, Felony.arguments);
+        await this.console.run(this.felony.arguments.command, this.felony.arguments);
         return process.exit();
       }
       catch (error) {
-        console.error(error);
+        this.felony.log.error(error);
         return process.exit();
       }
     }
 
     // On specified queue, listen here.
-    if (typeof Felony.arguments.queue === "string") {
+    if (typeof this.felony.arguments.queue === "string") {
       try {
-        return await Felony.queue.listen(Felony.arguments.queue);
+        return await this.felony.queue.listen(this.felony.arguments.queue);
       }
       catch (error) {
-        console.error(error);
+        this.felony.log.error(error);
         return process.exit();
       }
     }
 
     // If http argument is passed in cli that will startup the http server
-    if (Felony.arguments.http === true) {
+    if (this.felony.arguments.http === true) {
       await this.server.load();
 
       return this.server.serve();
@@ -160,8 +170,12 @@ export default class Kernel {
     // If no startup arguments are defined (http, queue or command)
     // we will only put out entire felony object with everything loaded.
     // This is sort of a --dry-run option.
-    console.dir(Felony);
-    return process.exit();
+    this.felony.log.dir(this.felony);
+
+    // Special argument passed in order to not exit the runtime (used for testing)
+    if (this.felony.arguments.exit !== false) {
+      process.exit(0);
+    }
   }
 
   /**
@@ -170,10 +184,10 @@ export default class Kernel {
    * @return {Promise<void>}
    */
   async signal() {
-    const graceful = async () => await Felony.down();
+    const graceful = async () => this.felony.down();
 
-    process.on('SIGINT', graceful);
-    process.on('SIGTERM', graceful);
+    process.on("SIGINT", graceful);
+    process.on("SIGTERM", graceful);
   }
 
   /**
@@ -232,13 +246,13 @@ export default class Kernel {
   /**
    * Load single configuration file.
    *
-   * @param {string} path
+   * @param {string} filePath
    * @return {Promise<object>}
    * @private
    */
-  static async loadConfig(path) {
+  static async loadConfig(filePath) {
     try {
-      const stat = await fs.stat(path);
+      const stat = await fs.stat(filePath);
 
       if (!stat.isFile()) {
         return {};
@@ -247,12 +261,6 @@ export default class Kernel {
       return {};
     }
 
-    if (path.endsWith(".json")) {
-      const file = await fs.readFile(path);
-      return JSON.parse(file.toString());
-    }
-    else {
-      return import(path);
-    }
+    return import(filePath);
   }
 }

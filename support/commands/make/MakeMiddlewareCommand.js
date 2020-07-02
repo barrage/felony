@@ -1,5 +1,4 @@
 import Make from "./Make.js";
-import { app as Felony } from "../../../Felony.js";
 const STUB_PATH = `${Felony.felonyPath}/stubs/Middleware.stub`;
 
 /**
@@ -43,10 +42,10 @@ export default class MakeMiddlewareCommand extends Make {
    */
   async handle() {
     if (
-      typeof this.payload.name !== "string" ||
-      !this.payload.name.endsWith(".js")
+      typeof this.payload.name !== "string"
+      || !this.payload.name.endsWith(".js")
     ) {
-      throw new Error(`MakeMiddlewareCommand: Invalid middleware name provided`);
+      throw new Error("MakeMiddlewareCommand: Invalid middleware name provided");
     }
 
     const replacements = {

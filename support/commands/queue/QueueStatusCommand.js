@@ -42,7 +42,7 @@ export default class QueueStatusCommand extends Command {
    */
   async handle() {
     if (typeof this.payload.name !== "string") {
-      throw new Error(`QueueStatusCommand: please pass one or more queue names separated by comma`);
+      throw new Error("QueueStatusCommand: please pass one or more queue names separated by comma");
     }
 
     const queues = this.payload.name.split(",");
@@ -51,10 +51,10 @@ export default class QueueStatusCommand extends Command {
     for (const name of queues) {
       response.push({
         queue: name,
-        pending: await Worker.redis().client.llen(
+        pending: await Worker.redis().llen(
           Worker.queue(this.payload.name),
         ),
-        failed: await Worker.redis().client.llen(
+        failed: await Worker.redis().llen(
           Worker.queue(`failed:${this.payload.name}`),
         ),
       });
@@ -62,7 +62,7 @@ export default class QueueStatusCommand extends Command {
 
     if (this.cli === true) {
       console.table(response.map((item) => ({
-        "Queue": item.queue,
+        Queue: item.queue,
         "Jobs in queue": item.pending,
         "Jobs in failed list": item.failed,
       })));

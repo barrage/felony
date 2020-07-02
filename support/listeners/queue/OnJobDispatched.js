@@ -1,6 +1,5 @@
 import Listener from "../../../base/Listener.js";
 import Worker from "../../../src/queue/Worker.js";
-import { app as Felony } from "../../../Felony.js";
 
 /**
  * Event listener that will trigger on the events you add in listen array

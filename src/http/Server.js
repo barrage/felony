@@ -48,18 +48,25 @@ export default class Server {
   status = "pending";
 
   /**
+   * @param {Kernel} kernel
+   */
+  constructor(kernel) {
+    this.kernel = kernel;
+  }
+
+  /**
    * Load all defined routes within the framework and set them up for listening.
    *
    * @return {Promise<void>}
    */
   async load() {
-    const routes = await Felony.kernel.readRecursive(path.resolve(Felony.appRootPath, "routes"));
+    const routes = await this.kernel.readRecursive(path.resolve(this.kernel.felony.appRootPath, "routes"));
 
     for (const route of routes) {
       const Imported = (await import(route)).default;
       const Instance = new Imported(this);
 
-      Instance.__path = route.replace(`${Felony.appRootPath}/`, "");
+      Instance.__path = route.replace(`${this.kernel.felony.appRootPath}/`, "");
 
       if (Instance instanceof Route) {
         if (["ALL", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"].indexOf(Instance.method.toUpperCase()) === -1) {
@@ -91,9 +98,9 @@ export default class Server {
   async serve() {
     await this.setupApplication();
 
-    await Felony.event.raise(new FelonyServerLoaded(this));
+    await this.kernel.felony.event.raise(new FelonyServerLoaded(this));
 
-    this.router = express.Router(Felony.config.server.router || {});
+    this.router = express.Router(this.kernel.felony.config.server.router || {});
 
     for (const route of this.routes) {
       const method = route.method.toLowerCase();
@@ -102,22 +109,22 @@ export default class Server {
       this.router[method](path, ...(await this.compileCallbacks(route)));
     }
 
-    await Felony.event.raise(new FelonyServerReady(this));
+    await this.kernel.felony.event.raise(new FelonyServerReady(this));
 
     this.application.use(this.router);
 
-    if (typeof Felony.config.server.https === 'object' && Felony.config.server.https) {
-      this.server = https.createServer(Felony.config.server.https, this.application);
+    if (typeof this.kernel.felony.config.server.https === "object" && this.kernel.felony.config.server.https) {
+      this.server = https.createServer(this.kernel.felony.config.server.https, this.application);
     }
     else {
       this.server = http.createServer(this.application);
     }
 
-    this.server.listen(Felony.config.server.port, async () => {
+    this.server.listen(this.kernel.felony.config.server.port, async () => {
       this.status = "listening";
 
-      console.log(`Server listening on port ${Felony.config.server.port}`);
-      await Felony.event.raise(new FelonyServerListening(this));
+      this.kernel.felony.log.log(`Server listening on port ${this.kernel.felony.config.server.port}`);
+      await this.kernel.felony.event.raise(new FelonyServerListening(this));
     });
   }
 
@@ -130,18 +137,18 @@ export default class Server {
   close(force = 300) {
     return new Promise((resolve) => {
       if (this.status === "listening") {
-        console.warn("Starting to close http(s) server...");
+        this.kernel.felony.log.warn("Starting to close http(s) server...");
 
         // Force the shutdown after given number of seconds
         setTimeout(() => {
           if (this.status !== "pending") {
-            console.log("Server is taking to long to close connection, moving on...");
+            this.kernel.felony.log.log("Server is taking to long to close connection, moving on...");
             resolve();
           }
         }, force * 1000);
 
         this.server.close(() => {
-          console.log("Server connections closed, server terminated");
+          this.kernel.felony.log.log("Server connections closed, server terminated");
 
           this.status = "pending";
           resolve();
@@ -160,15 +167,14 @@ export default class Server {
    * @return {Promise<array>}
    */
   async compileCallbacks(route) {
-    await Felony.event.raise(new FelonyServerBeforeRouteCompile(route));
+    await this.kernel.felony.event.raise(new FelonyServerBeforeRouteCompile(route));
 
     // Get all the middleware from the route and map them as
     // async callbacks for express route handler.
     const callbacks = (await route.getMiddleware())
-      .map(middleware => async (request, response, next) => {
+      .map((middleware) => async (request, response, next) => {
         return middleware.handle(request, response, next);
       });
-
 
     // After we dealt with all the middleware, we attach at the end of
     // the callbacks our actual route handler method.
@@ -185,22 +191,22 @@ export default class Server {
    * @return {Promise<void>}
    */
   async setupApplication() {
-    Felony.config.server = Felony.config.server || {
+    this.kernel.felony.config.server = this.kernel.felony.config.server || {
       port: 5445,
     };
 
-    if (Felony.arguments.SERVER_PORT) {
-      Felony.config.server.port = Felony.arguments.SERVER_PORT;
+    if (this.kernel.felony.arguments.SERVER_PORT) {
+      this.kernel.felony.config.server.port = this.kernel.felony.arguments.SERVER_PORT;
     }
 
-    this.application.use(express.json(Felony.config.server.json || {}));
+    this.application.use(express.json(this.kernel.felony.config.server.json || {}));
 
-    if (Felony.config.server.static && typeof Felony.config.server.static === "object") {
-      this.application.use(express.static(Felony.config.server.static));
+    if (this.kernel.felony.config.server.static && typeof this.kernel.felony.config.server.static === "object") {
+      this.application.use(express.static(this.kernel.felony.config.server.static));
     }
 
-    if (Felony.config.server.raw && typeof Felony.config.server.raw === "object") {
-      this.application.use(express.raw(Felony.config.server.raw));
+    if (this.kernel.felony.config.server.raw && typeof this.kernel.felony.config.server.raw === "object") {
+      this.application.use(express.raw(this.kernel.felony.config.server.raw));
     }
 
     // https://www.npmjs.com/package/express-useragent
@@ -220,11 +226,11 @@ export default class Server {
    * @return {Promise<void>}
    */
   async setupHelmet() {
-    if (!Felony.config.helmet || typeof Felony.config.helmet !== "object") {
-      Felony.config.helmet = {};
+    if (!this.kernel.felony.config.helmet || typeof this.kernel.felony.config.helmet !== "object") {
+      this.kernel.felony.config.helmet = {};
     }
 
-    const H = Felony.config.helmet;
+    const H = this.kernel.felony.config.helmet;
 
     if (typeof H.contentSecurityPolicy === "undefined") {
       H.contentSecurityPolicy = false;
@@ -326,17 +332,17 @@ export default class Server {
    * @return {Promise<void>}
    */
   async setupCors() {
-    if (!Felony.config.cors || typeof Felony.config.cors !== "object") {
-      Felony.config.cors = {};
+    if (!this.kernel.felony.config.cors || typeof this.kernel.felony.config.cors !== "object") {
+      this.kernel.felony.config.cors = {};
     }
 
     this.application.use(cors({
-      headers: Felony.config.cors.headers,
-      origin: Felony.config.cors.origin || "",
-      credentials: !!Felony.config.cors.credentials,
-      methods: Felony.config.cors.methods || "GET,HEAD,PUT,PATCH,POST,DELETE",
-      preflightContinue: Felony.config.cors.preflightContinue || false,
-      optionsSuccessStatus: Felony.config.cors.optionsSuccessStatus || 204,
+      headers: this.kernel.felony.config.cors.headers,
+      origin: this.kernel.felony.config.cors.origin || "",
+      credentials: !!this.kernel.felony.config.cors.credentials,
+      methods: this.kernel.felony.config.cors.methods || "GET,HEAD,PUT,PATCH,POST,DELETE",
+      preflightContinue: this.kernel.felony.config.cors.preflightContinue || false,
+      optionsSuccessStatus: this.kernel.felony.config.cors.optionsSuccessStatus || 204,
     }));
   }
 }
