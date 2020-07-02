@@ -277,7 +277,7 @@ export default class Worker {
     }
 
     if (job) {
-      const _job = await this.felony.queue.getJob(job.__path, job.payload);
+      const _job = await Felony.queue.getJob(job.__path, job.payload);
 
       if (_job) {
         _job.id = job.id;
@@ -316,7 +316,7 @@ export default class Worker {
   static async push(job, queue) {
     await Worker.redis().rpush(Worker.queue(queue), job.toString());
 
-    await this.felony.event.raise(new FelonyJobDispatched(job));
+    await Felony.event.raise(new FelonyJobDispatched(job));
 
     return job;
   }

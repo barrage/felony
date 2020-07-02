@@ -18,7 +18,6 @@ import FelonyServerBeforeRouteCompile from "../../support/events/FelonyServerBef
  * @class
  */
 export default class Server {
-
   /**
    * All the routes loaded
    *
@@ -104,9 +103,9 @@ export default class Server {
 
     for (const route of this.routes) {
       const method = route.method.toLowerCase();
-      const path = route.path;
+      const routePath = route.path;
 
-      this.router[method](path, ...(await this.compileCallbacks(route)));
+      this.router[method](routePath, ...(await this.compileCallbacks(route)));
     }
 
     await this.kernel.felony.event.raise(new FelonyServerReady(this));

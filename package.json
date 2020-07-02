@@ -25,7 +25,7 @@
   "bugs": {
     "url": "https://github.com/barrage/felony/issues"
   },
-  "homepage": "https://github.com/barrage/felony#readme",
+  "homepage": "https://barrage.net",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
@@ -38,7 +38,7 @@
   },
   "type": "module",
   "bin": {
-    "felony": "./cli.js"
+    "felony": "cli.js"
   },
   "engines": {
     "node": ">=14.4.0"

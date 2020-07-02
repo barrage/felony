@@ -13,7 +13,7 @@ export default class OnJobDispatched extends Listener {
    * @type {string[]}
    */
   static listen = [
-      "FelonyJobDispatched"
+    "FelonyJobDispatched",
   ];
 
   /**

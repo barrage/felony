@@ -13,7 +13,7 @@ export default class OnJobFinished extends Listener {
    * @type {string[]}
    */
   static listen = [
-      "FelonyJobFinished"
+    "FelonyJobFinished",
   ];
 
   /**
