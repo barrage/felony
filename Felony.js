@@ -26,7 +26,9 @@ const help = function help() {
   console.log("felony http                                   Starts the HTTP server (express) with loaded routes found in 'routes/' directory");
   console.log("felony queue=<queue name>                     Runs queue listener for given queue name.");
   console.log(" ");
-  console.log("Arguments: Everything passed as arguments in cli will be available in global object 'Felony.arguments'.");
+  console.log("Args can be (but are not limited to):");
+  console.log("felony <command> silent                       This will suppress most, if not all the console messages displayed by Felony");
+  console.log("Everything passed as arguments in cli will be available in global object 'Felony.arguments'.");
   console.log(" ");
   console.log("Documentation: https://github.com/barrage/felony#readme");
 };
@@ -208,12 +210,12 @@ export class Felony {
        * Queue requires this connection information
        * for the redis instance.
        */
-      connection: {
-        host: "localhost",
-        port: 6379,
-        db: 0,
-        // password: "auth-password-for-redis",
-      },
+      // connection: {
+      //   host: "localhost",
+      //   port: 6379,
+      //   db: 0,
+      //   password: "auth-password-for-redis",
+      // },
     },
   };
 
