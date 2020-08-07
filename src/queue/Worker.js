@@ -54,7 +54,7 @@ export default class Worker {
 
       const Instance = new Imported();
 
-      if (Instance instanceof Job) {
+      if (Instance && Instance.__kind === "Job") {
         this.jobs.push(Imported);
       }
     }
@@ -94,7 +94,7 @@ export default class Worker {
 
       let job = await Worker.pop(queue);
 
-      if (job instanceof Job) {
+      if (job && job.__kind === "Job") {
         this.status = "working";
 
         job = await job.run();
@@ -167,7 +167,7 @@ export default class Worker {
       loaded.__path = Imported.__path;
     }
 
-    if (!(loaded instanceof Job)) {
+    if (loaded.__kind !== "Job") {
       return null;
     }
 
@@ -185,7 +185,7 @@ export default class Worker {
   async dispatch(job, payload = {}, queue = null) {
     const loaded = await this.getJob(job, payload);
 
-    if (!(loaded instanceof Job)) {
+    if (loaded.__kind !== "Job") {
       throw new Error(`Queue: ${job} is not a valid job`);
     }
 
@@ -221,7 +221,7 @@ export default class Worker {
       try {
         const loaded = await this.getJob(item.job, item.payload || {});
 
-        if (!(loaded instanceof Job)) {
+        if (loaded.__kind !== "Job") {
           throw new Error(`Queue: ${item.job} is not a valid job`);
         }
 

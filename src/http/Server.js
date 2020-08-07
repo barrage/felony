@@ -67,7 +67,7 @@ export default class Server {
 
       Instance.__path = route.replace(`${this.kernel.felony.appRootPath}/`, "");
 
-      if (Instance instanceof Route) {
+      if (Instance && Instance.__kind === "Route") {
         if (["ALL", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"].indexOf(Instance.method.toUpperCase()) === -1) {
           throw new Error(`Server: route '${route}': unknown method supplied: '${Instance.method}'`);
         }

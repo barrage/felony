@@ -37,7 +37,7 @@ export default class Connector {
       const Imported = (await import(db)).default;
       const Instance = new Imported();
 
-      if (Instance instanceof Database) {
+      if (Instance && Instance.__kind === "Database") {
         Instance.__path = db.replace(`${this.felony.appRootPath}/`, "");
 
         try {
@@ -74,7 +74,7 @@ export default class Connector {
 
       if (
         this.hasOwnProperty(key)
-        && this[key] instanceof Database
+        && this[key].__kind === "Database"
         && typeof this[key].close === "function"
       ) {
         this.felony.log.warn(`Closing connection on ${key} database...`);

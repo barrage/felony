@@ -7,6 +7,22 @@ import FelonyEvent from "./FelonyEvent.js";
  */
 export default class Listener {
   /**
+   * Static property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  static __kind = "Listener";
+
+  /**
+   * Property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  __kind = "Listener";
+
+  /**
    * List of events that this listener will listen to
    *
    * @type {string[]}

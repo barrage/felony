@@ -10,6 +10,22 @@ import FelonyJobFinished from "../support/events/FelonyJobFinished.js";
  */
 export default class Job {
   /**
+   * Static property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  static __kind = "Job";
+
+  /**
+   * Property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  __kind = "Job";
+
+  /**
    * Path that will be attached to the job as a static instance and jobs will be searched on worker by this key. (filled in automatically)
    *
    * @type string

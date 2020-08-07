@@ -32,7 +32,7 @@ export default class Bus {
    * @return {Promise<void>}
    */
   async raise(event) {
-    if (event instanceof FelonyEvent) {
+    if (event && event.__kind === "FelonyEvent") {
       for (const L of this.listeners) {
         if (L.listen.indexOf(event.constructor.name) === -1) {
           continue;
@@ -63,7 +63,7 @@ export default class Bus {
     for (const listener of listeners) {
       const Imported = await import(listener);
 
-      if (Imported && Imported.default && Array.isArray(Imported.default.listen)) {
+      if (Imported && Imported.default && Imported.default.__kind === "Listener") {
         this.listeners.push(Imported.default);
       }
     }

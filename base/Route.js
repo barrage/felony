@@ -9,6 +9,22 @@ import Middleware from "./Middleware.js";
  */
 export default class Route {
   /**
+   * Static property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  static __kind = "Route";
+
+  /**
+   * Property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  __kind = "Route";
+
+  /**
    * HTTP method used for this route
    *
    * @type string

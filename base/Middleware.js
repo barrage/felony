@@ -5,6 +5,22 @@
  */
 export default class Middleware {
   /**
+   * Static property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  static __kind = "Middleware";
+
+  /**
+   * Property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  __kind = "Middleware";
+
+  /**
    * This is the middleware action handler.
    *
    *  - If you set context.response.body within any of the middleware

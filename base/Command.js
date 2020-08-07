@@ -5,6 +5,22 @@
  */
 export default class Command {
   /**
+   * Static property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  static __kind = "Command";
+
+  /**
+   * Property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  __kind = "Command";
+
+  /**
    * Path to the command that will be attached while loading (this is automatically filled in)
    *
    * @type string

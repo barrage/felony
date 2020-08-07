@@ -6,6 +6,22 @@
  */
 export default class Database {
   /**
+   * Static property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  static __kind = "Database";
+
+  /**
+   * Property lettings us know what kind of class this is
+   *
+   * @type {string}
+   * @private
+   */
+  __kind = "Database";
+
+  /**
    * Every loaded database will have path from where it's loaded stored here (automatically filled in)
    *
    * @type string
