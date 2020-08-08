@@ -94,7 +94,7 @@ export default class Console {
     for (const command of commands) {
       const Imported = (await import(command)).default;
 
-      if (Imported && Imported.__kind === "Command") {
+      if (Imported && Imported.__kind === "Command" && Imported.signature) {
         if (Imported.integrated) {
           Imported.__path = command.replace(`${this.kernel.felony.felonyPath}/`, "Felony/");
         } else {
