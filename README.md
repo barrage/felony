@@ -34,7 +34,7 @@ npm install --save felony
 
 Run `felony` in your terminal, and you should get back the Felony object. If that happens, you are all set!
 
-How every, you can create `index.js` file:
+However, you can create `index.js` file:
 ```js
 import { app as Felony } from "felony";
 Felony.commit();
