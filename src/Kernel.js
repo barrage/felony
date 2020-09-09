@@ -235,7 +235,7 @@ export default class Kernel {
 
       if (include === true) {
         let prefix = '';
-        if(process.platform === 'win32'){ // we need to now which operating system are we using
+        if(process.platform === 'win32'){ // we need to know which operating system are we using
           prefix = 'file://';
         }
         files.push(`${prefix+dir}/${filename}`);
