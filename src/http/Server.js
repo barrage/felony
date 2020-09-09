@@ -64,16 +64,21 @@ export default class Server {
     for (const route of routes) {
       const Imported = (await import(route)).default;
       const Instance = new Imported(this);
-
-      Instance.__path = route.replace(`${this.kernel.felony.appRootPath}/`, "");
+      let replacePath = `${this.kernel.felony.appRootPath}/`;
+      let routeError = route;
+      if(route.startsWith('file://')){ // adjusting the path depending on operating system
+        replacePath = `file://${this.kernel.felony.appRootPath}\\`;
+        routeError = path.normalize(route.replace('file://', ''));
+      }
+      Instance.__path = route.replace(replacePath, "");
 
       if (Instance && Instance.__kind === "Route") {
         if (["ALL", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"].indexOf(Instance.method.toUpperCase()) === -1) {
-          throw new Error(`Server: route '${route}': unknown method supplied: '${Instance.method}'`);
+          throw new Error(`Server: route '${routeError}': unknown method supplied: '${Instance.method}'`);
         }
 
         if (!Instance.path || Instance.path.startsWith("/") !== true) {
-          throw new Error(`Server: route '${route}': path defined '${Instance.path}' is not valid, path has to start with '/'`);
+          throw new Error(`Server: route '${routeError}': path defined '${Instance.path}' is not valid, path has to start with '/'`);
         }
 
         // This is the way to test loading of all the middleware during the application startup

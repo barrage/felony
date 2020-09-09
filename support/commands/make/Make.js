@@ -39,7 +39,7 @@ export default class Make extends Command {
    * @return {Promise<void>}
    */
   async storeFile(p, content) {
-    while (p.startsWith(".") || p.startsWith("/")) {
+    while (p.startsWith(".") || p.startsWith("/") || p.startsWith("\\")) {
       p = p.slice(1, p.length);
     }
 

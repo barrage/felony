@@ -50,8 +50,11 @@ export default class Worker {
 
     for (const job of jobs) {
       const Imported = (await import(job)).default;
-      Imported.__path = job.replace(`${path.resolve(this.felony.appRootPath, "jobs")}/`, "");
-
+      let replacePath = `${path.resolve(this.felony.appRootPath, "jobs")}/`; //we need to adjust the path depending on operating system
+        if(job.startsWith('file://')){
+          replacePath = `file://${path.resolve(this.felony.appRootPath, "jobs")}/`;
+        }
+      Imported.__path = job.replace(replacePath, "");
       const Instance = new Imported();
 
       if (Instance && Instance.__kind === "Job") {

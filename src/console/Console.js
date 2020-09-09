@@ -96,9 +96,20 @@ export default class Console {
 
       if (Imported && Imported.__kind === "Command" && Imported.signature) {
         if (Imported.integrated) {
-          Imported.__path = command.replace(`${this.kernel.felony.felonyPath}/`, "Felony/");
+          let replacePath = `${this.kernel.felony.felonyPath}/`; //we need to adjust the path depending on operating system
+          if(command.startsWith('file://')){
+            replacePath = `file://${this.kernel.felony.felonyPath}\\`;
+          }
+          Imported.__path = command.replace(replacePath, "Felony/");
+          if(replacePath.startsWith('file://')){
+            Imported.__path = Imported.__path.replace('\\', '/'); //adjusting the path
+          }
         } else {
-          Imported.__path = command.replace(`${this.kernel.felony.appRootPath}/`, "");
+          let replacePath = `${this.kernel.felony.appRootPath}/`;
+          if(command.startsWith('file://')){ //we need to adjust the path depending on operating system
+            replacePath = `file://${this.kernel.felony.appRootPath}\\`
+          }
+          Imported.__path = command.replace(replacePath, "");
         }
 
         this.commands.push(Imported);
