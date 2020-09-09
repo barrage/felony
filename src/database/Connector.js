@@ -38,8 +38,11 @@ export default class Connector {
       const Instance = new Imported();
 
       if (Instance && Instance.__kind === "Database") {
-        Instance.__path = db.replace(`${this.felony.appRootPath}/`, "");
-
+        let replacePath = `${this.felony.appRootPath}/`; //we need to adjust the path depending on operating system
+        if(db.startsWith('file://')){
+          replacePath = `file://${this.felony.appRootPath}\\`;
+        }
+        Instance.__path = db.replace(replacePath, "");
         try {
           // Here we will try to load user defined database client.
           await Instance.handle();

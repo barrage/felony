@@ -199,7 +199,7 @@ export default class Kernel {
    * @return {Promise<string[]>}
    */
   async readRecursive(dir, suffix = [".js"], dirIgnore = []) {
-    if (dir[dir.length - 1] === "/") {
+    if (dir[dir.length - 1] === "/" || dir[dir.length -1] === "\\") {
       dir = dir.slice(0, dir.length - 1);
     }
 
@@ -234,7 +234,11 @@ export default class Kernel {
       }
 
       if (include === true) {
-        files.push(`${dir}/${filename}`);
+        let prefix = '';
+        if(process.platform === 'win32'){ // we need to now which operating system are we using
+          prefix = 'file://';
+        }
+        files.push(`${prefix+dir}/${filename}`);
       } else if (dirIgnore.indexOf(filename) === -1) {
         files.push(await this.readRecursive(`${dir}/${filename}`, suffix));
       }
@@ -252,8 +256,11 @@ export default class Kernel {
    */
   static async loadConfig(filePath) {
     try {
-      const stat = await fs.stat(filePath);
-
+      let filePath_stat = filePath;
+      if(filePath_stat.startsWith('file://')){
+        filePath_stat = filePath_stat.replace('file://', '');
+      }
+      const stat = await fs.stat(filePath_stat);
       if (!stat.isFile()) {
         return {};
       }

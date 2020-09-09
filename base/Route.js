@@ -133,12 +133,15 @@ export default class Route {
     }
 
     const stat = await fs.stat(_path);
-
+    let importPath = _path;
+    if(process.platform === 'win32'){
+      importPath = `file://${importPath}`;
+    }
     if (!stat.isFile()) {
       throw new Error(`Route: Middleware '${middleware}' which resolved to '${_path}' is not a processable file.`);
     }
 
-    const Imported = (await import(_path)).default || null;
+    const Imported = (await import(importPath)).default || null;
 
     if (!Imported) {
       throw new Error(`Route: Middleware '${middleware}' which resolved to '${_path}' failed loading, check that it has default export.`);
