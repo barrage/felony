@@ -128,7 +128,7 @@ All the configurations will be then available on `Felony.config` in your applica
 
 ### Environment specific configurations
 
-Felony will recognize if your export `NODE_ENV` before you run it and it will be stored in `Felony.environment` property.
+Felony will recognize if you export `NODE_ENV` before you run it and it will be stored in `Felony.environment` property.
 This property will be used to load configuration files from `config/environments/{YOUR_ENV}/any-config.js`.
 
 This means, if, for example you want to override cors configurations for your production application, 
