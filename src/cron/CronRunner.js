@@ -48,7 +48,7 @@ export default class CronRunner {
     // Get all the created cron jobs in "crons" folder.
       fs.readdir(path.resolve('./crons'), async (error, jobs) => {
         if (error) {
-          return barrage.logger.error(`${fname} Internal error occurred: ${error}`);
+          return Felony.log.error(`${fname} Internal error occurred: ${error}`);
         }
         
         // async load cron files
@@ -68,9 +68,7 @@ export default class CronRunner {
         // Load the cron with the set schedule
         _.each(jobs, (job) => {
           _cron[job.identity()] = new Cron.CronJob(job.schedule(), (one, two) => {
-            Felony.log.log("some log");
-            // barrage.logger.info(`${job.identity()} started at: ${`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`}`);
-            console.log(`${job.identity()} started at: ${`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`}`);
+            Felony.log.log(`${job.identity()} started at: ${`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`}`);
             try {
               job.handle();
               job.onSuccess();

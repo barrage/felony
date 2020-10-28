@@ -270,7 +270,7 @@ export class Felony {
 
     // Cache the configurations
     this.config = await this.kernel.config();
-    // console.log(this.config);
+
     await this.event.raise(new FelonyGotConfiguration());
 
     // Load and connect all the databases
@@ -279,12 +279,10 @@ export class Felony {
 
     // Load the jobs
     await this.queue.load();
-    // Valjda bi se ovjde trebali ucitat kronovi
 
     // Load crons
     await this.cronRunner.initialize();
 
-    // await this.cronRunner.initialize();
     // Lift off!
     await this.kernel.bootstrap();
   }
