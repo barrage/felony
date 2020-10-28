@@ -5,6 +5,7 @@ import Bus from "./src/events/Bus.js";
 import Logger from "./src/log/Logger.js";
 import Worker from "./src/queue/Worker.js";
 import Connector from "./src/database/Connector.js";
+import CronRunner from "./src/cron/CronRunner.js";
 
 import FelonyDefined from "./support/events/FelonyDefined.js";
 import FelonyGotArguments from "./support/events/FelonyGotArguments.js";
@@ -24,6 +25,7 @@ const help = function help() {
   console.log("felony commands                               Displays list of all the commands integrated in Felony and found in 'commands/' directory");
   console.log("felony command=<command signature> [args]     Runs the given command with passed arguments");
   console.log("felony http                                   Starts the HTTP server (express) with loaded routes found in 'routes/' directory");
+  console.log("felony http cron                              Starts the HTTP server same as \"http\" but allows Crons to be executed ");
   console.log("felony queue=<queue name>                     Runs queue listener for given queue name.");
   console.log(" ");
   console.log("Args can be (but are not limited to):");
@@ -95,6 +97,13 @@ export class Felony {
    * @type {Logger}
    */
   log = new Logger(this);
+
+  /**
+   * Cron runner
+   *
+   * @type Cron
+   */
+  cronRunner = new CronRunner(this);
 
   /**
    * Arguments passed from the CLI to Felony.
@@ -261,6 +270,7 @@ export class Felony {
 
     // Cache the configurations
     this.config = await this.kernel.config();
+    // console.log(this.config);
     await this.event.raise(new FelonyGotConfiguration());
 
     // Load and connect all the databases
@@ -269,7 +279,12 @@ export class Felony {
 
     // Load the jobs
     await this.queue.load();
+    // Valjda bi se ovjde trebali ucitat kronovi
 
+    // Load crons
+    await this.cronRunner.initialize();
+
+    // await this.cronRunner.initialize();
     // Lift off!
     await this.kernel.bootstrap();
   }
