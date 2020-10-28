@@ -28,6 +28,8 @@
   "homepage": "https://barrage.net",
   "dependencies": {
     "cors": "^2.8.5",
+    "cron": "^1.8.2",
+    "cronstrue": "^1.103.0",
     "express": "^4.17.1",
     "express-useragent": "^1.0.13",
     "helmet": "^3.23.1",

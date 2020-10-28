@@ -2,16 +2,15 @@
 
 Framework for lazy developers with security in mind that promotes good project structure and code segregation.
 
-We at Barrage started working on Felony since Node version 6. It has been our trusted helper for years now. 
-Up until now it has been an internal framework that we decided to wrap around existing and reliable solutions such as ExpressJS 
+We at Barrage started working on Felony since Node version 6. It has been our trusted helper for years now.
+Up until now it has been an internal framework that we decided to wrap around existing and reliable solutions such as ExpressJS
 and add our toolset and helpers for the developers working on our projects.
 
 HTTP Server is wrapper around [ExpressJS](https://expressjs.com/) framework with preloaded security defaults.
 
 This is a complete rewrite where we have started from scratch and want to have it publicly available to help anyone that deems this helpful.
-At first, we will work on it and add all the features and tools we found to be helpful for us. 
+At first, we will work on it and add all the features and tools we found to be helpful for us.
 As a potential user that means you can be a contributor as well, feel free to contact us.
-
 
 ## Requirements
 
@@ -19,7 +18,7 @@ Felony has been written with node v14 in mind, it might not work with older vers
 It assumes your are writing your application as ESM module, you will have to specify that in your `package.json`:
 
 ```json
-{ 
+{
   "type": "module"
 }
 ```
@@ -35,6 +34,7 @@ npm install --save felony
 Run `felony` in your terminal, and you should get back the Felony object. If that happens, you are all set!
 
 However, you can create `index.js` file:
+
 ```js
 import { app as Felony } from "felony";
 Felony.commit();
@@ -54,7 +54,7 @@ To start HTTP server simply pass the `http` argument to `index.js`:
 node index.js http
 ```
 
-*NOTE*: you can use `felony` command instead of `node index.js`.
+_NOTE_: you can use `felony` command instead of `node index.js`.
 
 ## ExpressJS
 
@@ -62,20 +62,20 @@ As already mentioned, Felony lifts Express as HTTP(s) server with security plugi
 
 We have included:
 
-- *HPP* (HTTP Parameter Pollution) protection (default: enabled)
-- *Helmet* package that includes:
-  - *contentSecurityPolicy* for setting Content Security Policy	(default: disabled)
-  - *crossdomain* for handling Adobe products' crossdomain requests	(default: disabled)
-  - *dnsPrefetchControl* controls browser DNS prefetching (default: enabled)
-  - *expectCt* for handling Certificate Transparency (default: disabled)
-  - *frameguard* to prevent clickjacking (default: enabled)
-  - *hidePoweredBy* to remove the X-Powered-By header (default: enabled)
-  - *hsts* for HTTP Strict Transport Security (default: enabled)
-  - *ieNoOpen* sets X-Download-Options for IE8+ (default: enabled)
-  - *noSniff* to keep clients from sniffing the MIME type (default: enabled)
-  - *referrerPolicy* to hide the Referer header (default: disabled)
-  - *xssFilter* adds some small XSS protections (default: enabled)
-- *Cors* (default: enabled, but lax)
+- _HPP_ (HTTP Parameter Pollution) protection (default: enabled)
+- _Helmet_ package that includes:
+  - _contentSecurityPolicy_ for setting Content Security Policy (default: disabled)
+  - _crossdomain_ for handling Adobe products' crossdomain requests (default: disabled)
+  - _dnsPrefetchControl_ controls browser DNS prefetching (default: enabled)
+  - _expectCt_ for handling Certificate Transparency (default: disabled)
+  - _frameguard_ to prevent clickjacking (default: enabled)
+  - _hidePoweredBy_ to remove the X-Powered-By header (default: enabled)
+  - _hsts_ for HTTP Strict Transport Security (default: enabled)
+  - _ieNoOpen_ sets X-Download-Options for IE8+ (default: enabled)
+  - _noSniff_ to keep clients from sniffing the MIME type (default: enabled)
+  - _referrerPolicy_ to hide the Referer header (default: disabled)
+  - _xssFilter_ adds some small XSS protections (default: enabled)
+- _Cors_ (default: enabled, but lax)
 
 If you don't configure any of them, they will use default configurations, we strongly encourage you to research those options,
 and configure them for your project and needs. It will not make your application bulletproof, but will help you fend off
@@ -104,7 +104,7 @@ export default {
 
   // https://helmetjs.github.io/
   helmet: {},
-}
+};
 ```
 
 To modify default cors configurations for your server, add `config/cors.js` file:
@@ -115,13 +115,8 @@ export default {
   preflightContinue: false,
   optionsSuccessStatus: 204,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  headers: [
-    "user-agent",
-    "content-type",
-    "accept-language",
-    "x-forwarded-for",
-  ],
-}
+  headers: ["user-agent", "content-type", "accept-language", "x-forwarded-for"],
+};
 ```
 
 All the configurations will be then available on `Felony.config` in your application.
@@ -131,8 +126,8 @@ All the configurations will be then available on `Felony.config` in your applica
 Felony will recognize if you export `NODE_ENV` before you run it and it will be stored in `Felony.environment` property.
 This property will be used to load configuration files from `config/environments/{YOUR_ENV}/any-config.js`.
 
-This means, if, for example you want to override cors configurations for your production application, 
-you would create `config/environments/production/cors.js`, that would automatically override 
+This means, if, for example you want to override cors configurations for your production application,
+you would create `config/environments/production/cors.js`, that would automatically override
 `config/cors.js`
 
 then run your application with NODE_ENV set:
@@ -154,6 +149,7 @@ The commands offered as integrated will help you generate your own commands, dat
 ## Routes
 
 To create route, simply run:
+
 ```shell script
 node index.js command=make:route name=GetVersion.js method=GET path=/version
 ```
@@ -174,7 +170,6 @@ export default class GetVersion extends Route {
     response.status(200).send({ version: pkg.version });
   }
 }
-
 ```
 
 Start the application with:
@@ -204,10 +199,9 @@ export default class LogRequest extends Middleware {
     next();
   }
 }
-
 ```
 
-*IMPORTANT*: You absolutely have to call `next()` or return response in every middleware, otherwise your server will hang once the route is called!
+_IMPORTANT_: You absolutely have to call `next()` or return response in every middleware, otherwise your server will hang once the route is called!
 
 To add this middleware to your route, edit the route and add the path to it in `middleware` array:
 
@@ -225,7 +219,6 @@ export default class GetVersion extends Route {
     response.status(200).send({ version: pkg.version });
   }
 }
-
 ```
 
 ## Commands
@@ -258,8 +251,8 @@ export default {
   redis: {
     host: "localhost",
     port: 6379,
-  }
-}
+  },
+};
 ```
 
 ...and this will be available under `Felony.config.database`
@@ -284,7 +277,10 @@ export default class Redis extends Database {
   client = null;
   async handle() {
     this.client = new Redisng();
-    await this.client.connect(Felony.config.database.redis.host, Felony.config.database.redis.port);
+    await this.client.connect(
+      Felony.config.database.redis.host,
+      Felony.config.database.redis.port
+    );
   }
   async close() {
     await this.client.close();
@@ -332,7 +328,7 @@ await Felony.event.raise(new Hello({ value: true }));
 Felony raises a lot of events during its runtime, you can create listeners for those events,
 take a look in `support/events/` directory to see if there is anything you might need to listen for.
 
-*IMPORTANT*: In order to not get unexpected behaviour, events must have unique name.
+_IMPORTANT_: In order to not get unexpected behaviour, events must have unique name.
 
 ## Listeners
 
@@ -348,7 +344,6 @@ export default class HelloListener extends Listener {
   static listen = [];
   async handle() {}
 }
-
 ```
 
 This listener like this won't do much since its not listening to anything, to get it to listen for an event, add name of the event class
@@ -357,9 +352,7 @@ you want it to listen, and then once the event is raised, Felony will call this 
 ```js
 import Listener from "felony/base/Listener.js";
 export default class HelloListener extends Listener {
-  static listen = [
-      "Hello"
-  ];
+  static listen = ["Hello"];
   async handle() {
     console.log("We got event: ", this.event); // We got event: Hello {}
   }
@@ -380,9 +373,9 @@ And then you would have additional worker instances:
 
 ```shell script
 node index.js queue=example-queue
-``` 
+```
 
-Let's say that you have some API endpoint where users can request export of their entire data they have in your database, this is something that would 
+Let's say that you have some API endpoint where users can request export of their entire data they have in your database, this is something that would
 probably require you to make multiple database calls, format that data, pretty it up, and it lasts longer then a regular request would last.
 
 So you make a plan to create a Job `jobs/ExportUserData.js` that would handle that export, and then later it would .zip the data and send it via email:
@@ -403,6 +396,7 @@ export default class ExportUserData extends Job {
   }
 }
 ```
+
 So you start editing the Job and finally you get something like this:
 
 ```js
@@ -417,11 +411,11 @@ export default class ExportUserData extends Job {
     // Email the file...
   }
   // This will trigger if handle method throws an error
-  async retryStrategy() {    
+  async retryStrategy() {
     if (this.error === "Some error that means we cannot retry") {
       return false;
     }
-    
+
     return true;
   }
 }
@@ -458,8 +452,57 @@ export default {
     host: "localhost", // Redis host
     port: 6379, // Redis port
     db: 1, // Redis db where to store jobs
-  }  
+  },
+};
+```
+
+## Cron
+
+Felony comes equiped with integrated cron runner where you can easily schedule task that will happen at a certain interval.
+
+```shell script
+node index.js command=make:cron name=ExampleCron.js schedule='* * * *'
+```
+
+This commnad will generate a cron file located in `crons/ExampleCron.js` where under `handle()` method you can define action that will happen once the schedule is up.
+
+```javascript
+import Cron from "felony/base/Cron.js";
+export default class ExampleCron extends Cron {
+  static description = "";
+  static schedule = "* * * *";
+  static active = true;
+  async handle() {
+    console.log("ExampleCron has executed!");
+  }
 }
+```
+
+Cron runner is not active by default and you will need to activate it once you are starting your application by simply adding an argument `cron`
+
+```shell script
+node index.js cron
+```
+
+`cron` argument can be combined with `http` or `queue` and will run in paralel with either of those two.
+
+Crons have to be active to run and can access the whole Felony object as if they were any other part of your application.
+
+if you have many crons you can use the integrated command to display the details about them:
+
+```shell script
+node index.js command=cron:display
+```
+
+and you'll get a nice table with all the crons in your application:
+
+```shell
+This is a list of all CronJobs.
+┌─────────┬──────────────────┬─────────────┬─────────────────────────┬──────────────────────────┬────────┐
+│ (index) │       name       │  schedule   │ Human readable schedule │           next           │ active │
+├─────────┼──────────────────┼─────────────┼─────────────────────────┼──────────────────────────┼────────┤
+│    0    │ 'ExampleCron.js' │ '* * * * *' │     'Every minute'      │ 2020-10-28T17:37:00.000Z │  true  │
+└─────────┴──────────────────┴─────────────┴─────────────────────────┴──────────────────────────┴────────┘
 ```
 
 # Additional documentation

@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 import Kernel from "./src/Kernel.js";
 import Bus from "./src/events/Bus.js";
 import Logger from "./src/log/Logger.js";
+import Runner from "./src/cron/Runner.js";
 import Worker from "./src/queue/Worker.js";
 import Connector from "./src/database/Connector.js";
 
@@ -81,6 +82,13 @@ export class Felony {
    * @type Worker
    */
   queue = new Worker(this);
+
+  /**
+   * Router instance with all the preloaded routes and server
+   *
+   * @type Server
+   */
+  cron = new Runner(this);
 
   /**
    * Database connector
@@ -267,11 +275,14 @@ export class Felony {
     await this.db._load();
     await this.event.raise(new FelonyLoadedDatabases());
 
-    // Load the jobs
-    await this.queue.load();
-
-    // Lift off!
-    await this.kernel.bootstrap();
+    await Promise.all([
+      // Load the jobs
+      this.queue.load(),
+      // Start the cron
+      this.cron.run(),
+      // Lift off!!
+      this.kernel.bootstrap()
+    ]);
   }
 
   /**
