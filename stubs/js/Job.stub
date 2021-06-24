@@ -1,0 +1,33 @@
+import Job from "felony/dist/base/Job.js";
+
+/**
+ * Example job
+ *
+ * @class
+ */
+export default class {JOB_NAME} extends Job {
+  /**
+   * Queue where this job will be dispatched if not defined otherwise.
+   *
+   * @type string | null
+   */
+  queueOn = null;
+
+  /**
+   * Handler class that will run once the job is actually executed.
+   *
+   * @return {Promise<any>}
+   */
+  async handle() {}
+
+  /**
+   * Handler that will dictate what we will do after the job fails.
+   *
+   * - Return false (or throw error) if you want to stop retry of the job.
+   *
+   * @return {Promise<boolean|void>}
+   */
+  async retryStrategy() {
+    return true;
+  }
+}

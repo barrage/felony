@@ -1,0 +1,30 @@
+import Database from "felony/base/Database";
+
+/**
+ * Database connection wrapper
+ *
+ * @class
+ */
+export default class {DATABASE_NAME} extends Database {
+  /**
+   * Holder for the database client after the connection has been established
+   *
+   * @type any
+   */
+  client: any = null;
+
+  /**
+   * Handler for the database connection, connect to the database and then populate this.client with it.
+   *
+   * @return {Promise<any>}
+   */
+  async handle(): Promise<any> {}
+
+  /**
+   * Handle closing of database instance, this method will be called
+   * before application shuts down.
+   *
+   * @return {Promise<void>}
+   */
+  async close(): Promise<void> {}
+}

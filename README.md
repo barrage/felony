@@ -36,9 +36,18 @@ Run `felony` in your terminal, and you should get back the Felony object. If tha
 However, you can create `index.js` file:
 
 ```js
-import { app as Felony } from "felony";
-Felony.commit();
+import { commit } from "felony";
+commit();
 ```
+
+or:
+
+```js
+import Felony from "felony";
+const felony = new Felony(process.cwd());
+felony.commit();
+```
+
 
 And then you will have access to Felony through it:
 
@@ -55,6 +64,19 @@ node index.js http
 ```
 
 _NOTE_: you can use `felony` command instead of `node index.js`.
+
+### Singleton
+
+Once you load the Felony, the last instance that has been loaded will be stored on `globalThis` object and then you can retrieve it:
+
+```js
+import { singleton } from "felony";
+const felony = singleton();
+
+// or
+
+const alsoFelony = globalThis.Felony;
+```
 
 ## ExpressJS
 

@@ -1,0 +1,62 @@
+import Route from "felony/base/Route";
+import Express from "express";
+
+/**
+ * @api {{ROUTE_METHOD}} {ROUTE_PATH}
+ * @apiName {ROUTE_NAME}
+ * @apiGroup MyGroup
+ * @class
+ */
+export default class {ROUTE_NAME} extends Route {
+  /**
+   * HTTP method used for this route
+   *
+   * @type {string}
+   */
+  method: string = "{ROUTE_METHOD}";
+
+  /**
+   * HTTP path path after the hostname for this route
+   *
+   * @type {string}
+   */
+  path: string = "{ROUTE_PATH}";
+
+  /**
+   * Description of this route that will be used while loading to describe this route
+   *
+   * @type {string}
+   */
+  description: string = "";
+
+  /**
+   * Array containing all the middleware that will be launched before request
+   * enters this route.
+   *
+   * Types allowed for this define:
+   * @type {string[] | string | Middleware[] | Middleware}
+   * Type string[]
+   *  - Here you can define files with their full import path, they will have to each export default class that extends Middleware class
+   *
+   * Type string
+   *  - There is no need for array if you only have one path to middleware
+   *
+   * Type Middleware[]
+   *  - You can preload multiple middleware classes in your route and then push them into this array
+   *
+   * Type Middleware
+   *  - You can assign a single middleware class to this key
+   */
+  middleware: string[] | string | Middleware[] | Middleware = [];
+
+  /**
+   * Handler for this route that will return some response.
+   *
+   * @param {Express.Request} request
+   * @param {Express.Response} response
+   * @return {Promise<any>}
+   */
+  async handle(request: Express.Request, response: Express.Response): Promise<any> {
+    response.status(200).send({ hello: "world" });
+  }
+}

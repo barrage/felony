@@ -1,12 +1,14 @@
 {
   "name": "felony",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "Criminally easy framework",
-  "main": "Felony.js",
+  "main": "dist/Felony.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --allow-uncaught",
+    "test": " ./node_modules/.bin/mocha --allow-uncaught #snyk test &&",
     "snyk-protect": "snyk protect",
-    "prepublish": "npm run snyk-protect"
+    "prepublish": "npm run snyk-protect",
+    "build": "rm -rf dist/ && node_modules/.bin/ttsc -d",
+    "dev": "ts-node dist/Felony.js"
   },
   "repository": {
     "type": "git",
@@ -35,7 +37,7 @@
     "helmet": "^3.23.1",
     "hpp": "^0.2.3",
     "ioredis": "^4.17.3",
-    "snyk": "^1.359.1",
+    "snyk": "^1.641.0",
     "uuid": "^8.2.0"
   },
   "type": "module",
@@ -47,10 +49,18 @@
   },
   "snyk": true,
   "devDependencies": {
-    "eslint": "^7.3.1",
-    "babel-eslint": "^10.1.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.0",
-    "mocha": "^8.0.1"
+    "@types/express": "^4.17.12",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.0",
+    "@zoltu/typescript-transformer-append-js-extension": "^1.0.1",
+    "debug": "^4.3.1",
+    "eslint": "7.3.1",
+    "babel-eslint": "10.1.0",
+    "eslint-config-airbnb-base": "14.2.0",
+    "eslint-plugin-import": "2.22.0",
+    "mocha": "^8.0.1",
+    "ts-node": "^10.0.0",
+    "ttypescript": "^1.5.12",
+    "typescript": "^4.3.4"
   }
 }

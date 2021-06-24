@@ -12,8 +12,17 @@
     "describe": "readonly",
     "it": "readonly"
   },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  },
   "extends": [
-    "airbnb-base"
+    "airbnb-base",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 11,
@@ -71,6 +80,9 @@
     "no-console": 0,
     "import/extensions": 0,
     "prefer-arrow-callback": 0,
-    "import/no-cycle": 0
+    "import/no-cycle": 0,
+    "@typescript-eslint/no-empty-function": 0,
+    "no-irregular-whitespace": 0,
+    "@typescript-eslint/ban-ts-comment": 0
   }
 }
