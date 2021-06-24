@@ -4,7 +4,7 @@
   "description": "Criminally easy framework",
   "main": "dist/Felony.js",
   "scripts": {
-    "test": "snyk test && ./node_modules/.bin/mocha --allow-uncaught",
+    "test": "./node_modules/.bin/mocha --allow-uncaught",
     "snyk-protect": "snyk protect",
     "prepublish": "npm run snyk-protect",
     "build": "rm -rf dist/ && node_modules/.bin/ttsc -d",
