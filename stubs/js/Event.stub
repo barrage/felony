@@ -1,0 +1,8 @@
+import FelonyEvent from "felony/dist/base/FelonyEvent.js";
+
+/**
+ * Example event that can be triggered from anywhere in the application.
+ *
+ * @class
+ */
+export default class {EVENT_NAME} extends FelonyEvent {}

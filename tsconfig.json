@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "pretty": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "target": "es2020",
+    "module": "es2020",
+    "types": [
+      "express"
+    ],
+    "plugins": [
+			{
+				"transform": "@zoltu/typescript-transformer-append-js-extension/output/index.js",
+				"after": true,
+			}
+		]
+  },
+  "include": [
+    ".*ts",
+    "src/*.ts",
+    "support/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

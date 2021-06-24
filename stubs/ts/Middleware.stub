@@ -1,0 +1,28 @@
+import Middleware from "felony/base/Middleware";
+import Express from "express";
+
+/**
+ * Example middleware that modifies the request.
+ * @class
+ */
+export default class {MIDDLEWARE_NAME} extends Middleware {
+  /**
+   * This is the middleware action handler.
+   *
+   *  - If you set context.response.body within any of the middleware
+   *    it will stop propagation through other middleware and request
+   *    won't reach the route.
+   *
+   * @param {Express.Request} request
+   * @param {Express.Response} response
+   * @param {Function} next
+   * @return {Promise<void>}
+   *
+   * @throws any
+   *  - Throwing error will stop request propagation through
+   *    other middleware and will stop it from reaching the route.
+   */
+  async handle(request: Express.Request, response: Express.Response, next: Function): Promise<void> {
+    next();
+  }
+}

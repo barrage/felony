@@ -1,0 +1,24 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "[js]": {
+    "editor.defaultFormatter": null,
+    "editor.tabSize": 2
+  },
+  "[ts]": {
+    "editor.defaultFormatter": null,
+    "editor.tabSize": 2
+  },
+  "[json]": {
+    "editor.defaultFormatter": null,
+    "editor.tabSize": 2
+  },
+  "eslint.validate": [
+    "json",
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.run": "onSave"
+}

@@ -1,0 +1,38 @@
+import Cron from "felony/dist/base/Cron.js";
+
+/**
+ * Your initial cron
+ *
+ * @class
+ */
+export default class {CRON_NAME} extends Cron {
+  /**
+   * User friendly description of the cron that has to be static.
+   *
+   * @type string
+   */
+  static description = "";
+
+  /**
+   * Cron schedule
+   *
+   * @type string
+   */
+  static schedule = "{CRON_SCHEDULE}";
+
+  /**
+   * Is this cron job currently active
+   *
+   * @type boolean
+   */
+  static active = true;
+
+  /**
+   * Handler method of the command that will run the action.
+   *
+   * @return {Promise<any>}
+   */
+  async handle() {
+    console.log("{CRON_NAME} has executed!");
+  }
+}

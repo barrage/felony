@@ -1,0 +1,44 @@
+import Command from "felony/base/Command";
+
+/**
+ * Hello world command used as an example.
+ *
+ * @class
+ */
+export default class {COMMAND_NAME} extends Command {
+  /**
+   * Static signature key that will be callable name of our command.
+   *
+   * @type {string}
+   */
+  static signature: string = "{COMMAND_SIGNATURE}";
+
+  /**
+   * User friendly description of the command that has to be static.
+   *
+   * @type {string}
+   */
+  static description: string = "";
+
+  /**
+   * User friendly example of your command usage.
+   *
+   * @type {string}
+   */
+  static usage: string = "";
+
+  /**
+   * Handler method of the command that will run the action.
+   *
+   * @return {Promise<any>}
+   */
+  async handle(): Promise<any> {
+    let calledFrom = "application";
+
+    if (this.cli === true) {
+      calledFrom = "CLI";
+    }
+
+    console.log(`Payload passed to command from ${calledFrom}`, this.payload);
+  }
+}
