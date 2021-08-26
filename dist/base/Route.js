@@ -84,15 +84,25 @@ export default class Route {
             if (Array.isArray(this.middleware)) {
                 for (const middleware of this.middleware) {
                     const Mid = await this.loadMiddleware(middleware);
-                    // @ts-ignore
-                    pipeline.push(new Mid(this.felony));
+                    if (this.felony.isConstructor(Mid)) {
+                        // @ts-ignore
+                        pipeline.push(new Mid(this.felony));
+                    }
+                    else {
+                        pipeline.push(Mid);
+                    }
                 }
             }
             // @ts-ignore
             else {
                 const Mid = await this.loadMiddleware(this.middleware);
-                // @ts-ignore
-                pipeline.push(new Mid(this.felony));
+                if (this.felony.isConstructor(Mid)) {
+                    // @ts-ignore
+                    pipeline.push(new Mid(this.felony));
+                }
+                else {
+                    pipeline.push(Mid);
+                }
             }
         }
         return pipeline;
