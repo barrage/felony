@@ -479,6 +479,25 @@ export default class Felony implements FelonyInterface {
   ucFirst(text: string = ""): string {
     return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
   }
+
+  /**
+   * Tests whether the input can be instantiated or not
+   *
+   * @param {any} input
+   *
+   * @return {boolean}
+   */
+
+  isConstructor(input: any): boolean {
+    if (
+      input.prototype
+      && typeof input.prototype === "object"
+      && input === input.prototype.constructor) {
+      return true;
+    }
+
+    return false;
+  }
 }
 
 /**
