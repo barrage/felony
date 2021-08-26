@@ -226,6 +226,14 @@ export default class Felony implements FelonyInterface {
      * @return string
      */
     ucFirst(text?: string): string;
+    /**
+     * Tests whether the input can be instantiated or not
+     *
+     * @param {any} input
+     *
+     * @return {boolean}
+     */
+    isConstructor(input: any): boolean;
 }
 /**
   * Start the framework right away
