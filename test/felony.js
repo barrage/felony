@@ -5,9 +5,11 @@ import Bus from "../dist/src/events/Bus.js";
 import Logger from "../dist/src/log/Logger.js";
 import Worker from "../dist/src/queue/Worker.js";
 import Connector from "../dist/src/database/Connector.js";
+import Server from "../dist/src/http/Server.js";
 import debug from "debug";
 import * as regularFs from "fs";
 import path from "path";
+import request from "supertest";
 
 const fs = regularFs.promises;
 
@@ -18,7 +20,7 @@ let instance;
 
 describe("Felony", async function () {
   before(async function beforeHook() {
-    instance = new F(appRootPath, { exit: false, silent: true });
+    instance = new F(appRootPath, { exit: false, silent: true, http: true });
     await instance.commit();
   });
   after(async function afterHook() {
@@ -31,10 +33,11 @@ describe("Felony", async function () {
 
   it("Should load itself and have all the instances on itself", async function () {
     assert.strictEqual(instance.kernel instanceof Kernel, true, "Felony not loaded properly, kernel not loaded");
-    assert.strictEqual(instance.event instanceof Bus, true, "Felony not loaded properly, event bus not loaded");
+    assert.strictEqual(instance.event instanceof Bus, true, "Felony not loa“ded properly, event bus not loaded");
     assert.strictEqual(instance.queue instanceof Worker, true, "Felony not loaded properly, queue not loaded");
     assert.strictEqual(instance.db instanceof Connector, true, "Felony not loaded properly, database connector not loaded");
     assert.strictEqual(instance.log instanceof Logger, true, "Felony not loaded properly, logger not loaded");
+    assert.strictEqual(instance.kernel.server instanceof Server, true, "Felony not loaded properly, http server not loaded");
   });
 
   it("Should display all the integrated commands", function () {
@@ -75,5 +78,17 @@ describe("Felony", async function () {
     catch (e) {
       assert.strictEqual(e.message.split("\n")[0].startsWith("MakeCommand:"), true);
     }
+  });
+
+  it("Should have loaded the route from test file", function () {
+    assert.notEqual(instance.kernel.server.routes, 0, "Router array empty, no routes are loaded!");
+  });
+
+  it("Should return a response from the test route", function (done) {
+    request(instance.kernel.server.application)
+      .get("/test")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200, done);
   });
 });
