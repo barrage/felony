@@ -97,12 +97,14 @@ describe("Felony", async function () {
       .get("/test-instanced-middleware")
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
-      .expect(200,
+      .expect(
+        200,
         {
           test: "ok",
           isMiddlewareActive: true,
         },
-        done);
+        done,
+      );
   });
 
   it("Should return a response from the test route with middleware class", function (done) {
@@ -110,12 +112,14 @@ describe("Felony", async function () {
       .get("/test-class-middleware")
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
-      .expect(200,
+      .expect(
+        200,
         {
           test: "ok",
           isMiddlewareActive: true,
         },
-        done);
+        done,
+      );
   });
 
   it("Should return a response from the test route with middleware string", function (done) {
@@ -123,11 +127,42 @@ describe("Felony", async function () {
       .get("/test-string-middleware")
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
-      .expect(200,
+      .expect(
+        200,
         {
           test: "ok",
           isMiddlewareActive: true,
         },
-        done);
+        done,
+      );
+  });
+
+  it("Should return an unprocessable entity response, body format is invalid", function (done) {
+    request(instance.kernel.server.application)
+      .post("/test-validation-middleware")
+      .send({
+        data: "this is invalid data the middleware expects data to be number",
+      })
+      .set("Accept", "application/json")
+      .expect(
+        422,
+        "Validation Error",
+        done,
+      );
+  });
+
+  it("Should return ok code, body is of correct format", function (done) {
+    request(instance.kernel.server.application)
+      .post("/test-validation-middleware")
+      .send({
+        data: 2.321,
+      })
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(
+        200,
+        { test: "ok" },
+        done,
+      );
   });
 });
