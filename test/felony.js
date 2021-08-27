@@ -99,4 +99,12 @@ describe("Felony", async function () {
       .expect("Content-Type", /json/)
       .expect(200, done);
   });
+
+  it("Should return a response from the test route with middleware class", function (done) {
+    request(instance.kernel.server.application)
+      .get("/test-class-middleware")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200, done);
+  });
 });
