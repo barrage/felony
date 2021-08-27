@@ -49,12 +49,6 @@ export default class Logger {
         console.error(...arguments);
     }
     // eslint-disable-next-line
-    exception(args) {
-        if (this.felony.arguments.silent !== true) {
-            console.exception(...arguments);
-        }
-    }
-    // eslint-disable-next-line
     group(args) {
         if (this.felony.arguments.silent !== true) {
             console.group(...arguments);

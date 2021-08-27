@@ -29,11 +29,15 @@ describe("Felony", async function () {
     if (stat.isDirectory()) {
       regularFs.rmSync(path.resolve(appRootPath, "commands"), { recursive: true });
     }
+
+    setTimeout(() => {
+      process.exit(0);
+    }, 2000);
   });
 
   it("Should load itself and have all the instances on itself", async function () {
     assert.strictEqual(instance.kernel instanceof Kernel, true, "Felony not loaded properly, kernel not loaded");
-    assert.strictEqual(instance.event instanceof Bus, true, "Felony not loa“ded properly, event bus not loaded");
+    assert.strictEqual(instance.event instanceof Bus, true, "Felony not loaded properly, event bus not loaded");
     assert.strictEqual(instance.queue instanceof Worker, true, "Felony not loaded properly, queue not loaded");
     assert.strictEqual(instance.db instanceof Connector, true, "Felony not loaded properly, database connector not loaded");
     assert.strictEqual(instance.log instanceof Logger, true, "Felony not loaded properly, logger not loaded");
