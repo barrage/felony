@@ -1,14 +1,13 @@
 import Route from "../../dist/base/Route.js";
-import TestMiddleware from "../middleware/TestMiddleware.js";
 
 export default class TestRouteInstancedMiddleware extends Route {
   method = "GET";
 
-  path = "/test-class-middleware";
+  path = "/test-string-middleware";
 
   description = "";
 
-  middleware = [TestMiddleware];
+  middleware = ["../test/middleware/TestMiddleware.js"];
 
   async handle(request, response) {
     response
