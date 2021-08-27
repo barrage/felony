@@ -20,7 +20,6 @@ export default class Logger {
     dir(args: any): void;
     dirxml(args: any): void;
     error(args: any): void;
-    exception(args: any): void;
     group(args: any): void;
     groupCollapsed(args: any): void;
     groupEnd(args: any): void;
