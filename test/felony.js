@@ -97,7 +97,12 @@ describe("Felony", async function () {
       .get("/test-instanced-middleware")
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
-      .expect(200, done);
+      .expect(200,
+        {
+          test: "ok",
+          isMiddlewareActive: true,
+        },
+        done);
   });
 
   it("Should return a response from the test route with middleware class", function (done) {
@@ -105,6 +110,24 @@ describe("Felony", async function () {
       .get("/test-class-middleware")
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
-      .expect(200, done);
+      .expect(200,
+        {
+          test: "ok",
+          isMiddlewareActive: true,
+        },
+        done);
+  });
+
+  it("Should return a response from the test route with middleware string", function (done) {
+    request(instance.kernel.server.application)
+      .get("/test-string-middleware")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200,
+        {
+          test: "ok",
+          isMiddlewareActive: true,
+        },
+        done);
   });
 });

@@ -11,6 +11,11 @@ export default class TestRouteInstancedMiddleware extends Route {
   middleware = [new TestMiddleware()];
 
   async handle(request, response) {
-    response.status(200).send({ test: "ok" });
+    response
+      .status(200)
+      .send({
+        isMiddlewareActive: request.body.isMiddlewareActive, // loaded from test middleware
+        test: "ok",
+      });
   }
 }
