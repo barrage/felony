@@ -23,6 +23,12 @@ export default class Runner {
      */
     felony: Felony;
     /**
+     * Status that lets us know in what stage the cron runner is
+     *
+     * @type {string}
+     */
+    status: string;
+    /**
      * @param {Felony} felony
      */
     constructor(felony: Felony);
