@@ -247,8 +247,8 @@ export default class Felony {
         await Promise.all([
             // Load the jobs
             this.queue.load(),
-            // Start the cron
-            this.cron.run(),
+            // Load the cron jobs
+            this.cron.load(),
             // Lift off!!
             this.kernel.bootstrap(),
         ]);
@@ -331,9 +331,9 @@ export async function commit(appRootPath, args) {
  * Will return the global Felony instance if it is instantiated
  * and running.
  *
- * @returns {Felony | undefined}
+ * @returns {Felony | undefined}
  */
-export function singelton() {
+export function singleton() {
     return globalThis.Felony;
 }
 //# sourceMappingURL=Felony.js.map

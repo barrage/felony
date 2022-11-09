@@ -1,11 +1,11 @@
 {
   "name": "felony",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Criminally easy framework",
   "main": "dist/Felony.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --allow-uncaught",
-    "snyk-protect": "snyk protect",
+    "snyk-protect": "snyk-protect",
     "prepublish": "npm run snyk-protect",
     "build": "rm -rf dist/ && node_modules/.bin/ttsc -d",
     "dev": "ts-node dist/Felony.js"
@@ -37,7 +37,7 @@
     "helmet": "^3.23.1",
     "hpp": "^0.2.3",
     "ioredis": "^4.17.3",
-    "snyk": "^1.641.0",
+    "@snyk/protect": "^1.1056.0",
     "uuid": "^8.2.0"
   },
   "type": "module",
@@ -58,10 +58,10 @@
     "eslint": "7.3.1",
     "eslint-config-airbnb-base": "14.2.0",
     "eslint-plugin-import": "2.22.0",
-    "mocha": "^8.0.1",
+    "mocha": "^9.2.1",
     "supertest": "^6.1.6",
-    "ts-node": "^10.0.0",
-    "ttypescript": "^1.5.12",
-    "typescript": "^4.3.4"
+    "ts-node": "^10.9.1",
+    "ttypescript": "^1.5.13",
+    "typescript": "^4.8.4"
   }
 }

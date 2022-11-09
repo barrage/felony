@@ -480,7 +480,7 @@ export default {
 
 ## Cron
 
-Felony comes equiped with integrated cron runner where you can easily schedule task that will happen at a certain interval.
+Felony comes equipped with integrated cron runner where you can easily schedule task that will happen at a certain interval.
 
 ```shell script
 node index.js command=make:cron name=ExampleCron.js schedule='* * * *'
@@ -506,7 +506,7 @@ Cron runner is not active by default and you will need to activate it once you a
 node index.js cron
 ```
 
-`cron` argument can be combined with `http` or `queue` and will run in paralel with either of those two.
+`cron` argument can be combined with `http` or `queue` and will run in parallel with either of those two.
 
 Crons have to be active to run and can access the whole Felony object as if they were any other part of your application.
 

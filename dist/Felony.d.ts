@@ -247,7 +247,7 @@ export declare function commit(appRootPath?: string, args?: CliArguments | any):
  * Will return the global Felony instance if it is instantiated
  * and running.
  *
- * @returns {Felony | undefined}
+ * @returns {Felony | undefined}
  */
-export declare function singelton(): Felony | undefined;
+export declare function singleton(): Felony | undefined;
 export {};

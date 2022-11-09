@@ -414,8 +414,8 @@ export default class Felony implements FelonyInterface {
     await Promise.all([
       // Load the jobs
       this.queue.load(),
-      // Start the cron
-      this.cron.run(),
+      // Load the cron jobs
+      this.cron.load(),
       // Lift off!!
       this.kernel.bootstrap(),
     ]);
@@ -515,8 +515,8 @@ export async function commit(appRootPath?: string, args?: CliArguments | any): P
  * Will return the global Felony instance if it is instantiated
  * and running.
  *
- * @returns {Felony | undefined}
+ * @returns {Felony | undefined}
  */
-export function singelton(): Felony | undefined {
+export function singleton(): Felony | undefined {
   return globalThis.Felony;
 }

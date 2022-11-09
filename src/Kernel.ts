@@ -157,6 +157,13 @@ export default class Kernel {
     // On specified queue, listen here.
     if (typeof this.felony.arguments.queue === "string") {
       try {
+        if (this.felony.arguments.cron === true) {
+          return await Promise.all([
+            this.felony.cron.run(),
+            this.felony.queue.listen(this.felony.arguments.queue),
+          ]);
+        }
+
         return await this.felony.queue.listen(this.felony.arguments.queue);
       }
       catch (error) {
@@ -165,9 +172,22 @@ export default class Kernel {
       }
     }
 
+    // If cron argument is passed into the cli, and is not combined with http, we'll start
+    // only the cron runner by itself.
+    if (this.felony.arguments.cron === true && this.felony.arguments.http !== true) {
+      return this.felony.cron.run();
+    }
+
     // If http argument is passed in cli that will startup the http server
     if (this.felony.arguments.http === true) {
       await this.server.load();
+
+      if (this.felony.arguments.cron === true) {
+        return Promise.all([
+          this.felony.cron.run(),
+          this.server.serve(),
+        ]);
+      }
 
       return this.server.serve();
     }

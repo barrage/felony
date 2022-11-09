@@ -29,6 +29,13 @@ export default class Runner {
   felony: Felony;
 
   /**
+   * Status that lets us know in what stage the cron runner is
+   *
+   * @type {string}
+   */
+  status: string = "inactive";
+
+  /**
    * @param {Felony} felony
    */
   constructor(felony: Felony) {
@@ -67,22 +74,30 @@ export default class Runner {
       return;
     }
 
-    await this.load();
+    this.felony.log.info("Starting the cron runner");
 
-    for (const Job of this._crons) {
-      const job = new Job();
+    while (!this.felony.shuttingDown) {
+      this.status = "running";
 
-      this.crons[Job.__path] = {
-        job,
-        cron: new CronJob(Job.schedule, async () => {
-          try {
-            await job.handle();
-          }
-          catch (error) {
-            this.felony.log.error(error);
-          }
-        }, null, true, "UTC"),
-      };
+      for (const Job of this._crons) {
+        const job = new Job();
+
+        this.crons[Job.__path] = {
+          job,
+          cron: new CronJob(Job.schedule, async () => {
+            try {
+              await job.handle();
+            }
+            catch (error) {
+              this.felony.log.error(error);
+            }
+          }, null, true, "UTC"),
+        };
+      }
+
+      await this.felony.setTimeout(null, 2000);
     }
+
+    this.status = "shutting-down";
   }
 }
