@@ -62,6 +62,22 @@ export default class Runner {
         this._crons.push(Imported);
       }
     }
+
+    for (const Job of this._crons) {
+      const job = new Job();
+
+      this.crons[Job.__path] = {
+        job,
+        cron: new CronJob(Job.schedule, async () => {
+          try {
+            await job.handle();
+          }
+          catch (error) {
+            this.felony.log.error(error);
+          }
+        }, null, true, "UTC"),
+      };
+    }
   }
 
   /**
@@ -79,23 +95,7 @@ export default class Runner {
     while (!this.felony.shuttingDown) {
       this.status = "running";
 
-      for (const Job of this._crons) {
-        const job = new Job();
-
-        this.crons[Job.__path] = {
-          job,
-          cron: new CronJob(Job.schedule, async () => {
-            try {
-              await job.handle();
-            }
-            catch (error) {
-              this.felony.log.error(error);
-            }
-          }, null, true, "UTC"),
-        };
-      }
-
-      await this.felony.setTimeout(null, 2000);
+      await this.felony.setTimeout(null, 60000);
     }
 
     this.status = "shutting-down";
