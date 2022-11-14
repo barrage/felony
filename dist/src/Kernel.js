@@ -116,11 +116,11 @@ export default class Kernel {
         if (this.felony.arguments.command) {
             try {
                 await this.console.run(this.felony.arguments.command, this.felony.arguments);
-                return process.exit();
+                return process.exit(0);
             }
             catch (error) {
                 this.felony.log.error(error);
-                return process.exit();
+                return process.exit(1);
             }
         }
         // On specified queue, listen here.
