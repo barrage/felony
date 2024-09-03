@@ -1,6 +1,6 @@
 {
   "name": "felony",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Criminally easy framework",
   "main": "dist/Felony.js",
   "scripts": {
