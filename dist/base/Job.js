@@ -2,7 +2,6 @@ import { v4 as uuidV4 } from "uuid";
 import FelonyJobFailed from "../support/events/FelonyJobFailed.js";
 import FelonyJobStarted from "../support/events/FelonyJobStarted.js";
 import FelonyJobFinished from "../support/events/FelonyJobFinished.js";
-import Felony from "../Felony.js";
 /**
  * Job definition class that every job has to extend
  *
@@ -125,15 +124,15 @@ export default class Job {
             this.runs += 1;
             await this.felony.event.raise(new FelonyJobStarted(this));
             try {
-                console.info(`Job ${this.constructor.name} started on '${Felony.arguments.queue || "no-queue"}'`);
+                console.info(`Job ${this.constructor.name} started on '${this.felony.arguments.queue || "no-queue"}'`);
                 this.result = await this.handle();
                 this.finishedAt = new Date();
                 done = true;
-                console.info(`Job ${this.constructor.name} finished on '${Felony.arguments.queue || "no-queue"}'`);
+                console.info(`Job ${this.constructor.name} finished on '${this.felony.arguments.queue || "no-queue"}'`);
                 await this.felony.event.raise(new FelonyJobFinished(this));
             }
             catch (handleError) {
-                console.error(`Job ${this.constructor.name} failed on '${Felony.arguments.queue || "no-queue"}'`);
+                console.error(`Job ${this.constructor.name} failed on '${this.felony.arguments.queue || "no-queue"}'`);
                 this.error = handleError;
                 this.failedAt = new Date();
                 // If we have retryStrategy defined we will figure out from it
@@ -145,7 +144,7 @@ export default class Job {
                         done = retry === false;
                     }
                     catch (retryError) {
-                        console.error(`Job ${this.constructor.name} failed while attempting to retry on '${Felony.arguments.queue || "no-queue"}'`, retryError);
+                        console.error(`Job ${this.constructor.name} failed while attempting to retry on '${this.felony.arguments.queue || "no-queue"}'`, retryError);
                         done = true;
                     }
                 }

@@ -176,18 +176,18 @@ export default class Job implements JobInterface {
       await this.felony.event.raise(new FelonyJobStarted(this));
 
       try {
-        console.info(`Job ${this.constructor.name} started on '${Felony.arguments.queue || "no-queue"}'`);
+        console.info(`Job ${this.constructor.name} started on '${this.felony.arguments.queue || "no-queue"}'`);
 
         this.result = await this.handle();
         this.finishedAt = new Date();
         done = true;
 
-        console.info(`Job ${this.constructor.name} finished on '${Felony.arguments.queue || "no-queue"}'`);
+        console.info(`Job ${this.constructor.name} finished on '${this.felony.arguments.queue || "no-queue"}'`);
 
         await this.felony.event.raise(new FelonyJobFinished(this));
       }
       catch (handleError) {
-        console.error(`Job ${this.constructor.name} failed on '${Felony.arguments.queue || "no-queue"}'`);
+        console.error(`Job ${this.constructor.name} failed on '${this.felony.arguments.queue || "no-queue"}'`);
         this.error = handleError;
         this.failedAt = new Date();
 
@@ -201,7 +201,7 @@ export default class Job implements JobInterface {
             done = retry === false;
           }
           catch (retryError) {
-            console.error(`Job ${this.constructor.name} failed while attempting to retry on '${Felony.arguments.queue || "no-queue"}'`, retryError);
+            console.error(`Job ${this.constructor.name} failed while attempting to retry on '${this.felony.arguments.queue || "no-queue"}'`, retryError);
             done = true;
           }
         }
